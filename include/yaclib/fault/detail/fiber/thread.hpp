@@ -8,18 +8,18 @@
 #include <functional>
 #include <thread>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
-class FiberThreadlike {
+class Thread {
  public:
-  FiberThreadlike(const FiberThreadlike&) = delete;
-  FiberThreadlike& operator=(const FiberThreadlike&) = delete;
+  Thread(const Thread&) = delete;
+  Thread& operator=(const Thread&) = delete;
 
   using id = Fiber::Id;
   using native_handle_type = std::thread::native_handle_type;
 
   template <class Fp, class... Args>
-  inline explicit FiberThreadlike(Fp&& f, Args&&... args) {
+  inline explicit Thread(Fp&& f, Args&&... args) {
     yaclib::IFuncPtr func = yaclib::MakeFunc([&, f = std::forward<Fp>(f)]() mutable {
       f(std::forward(args)...);
     });
@@ -30,12 +30,12 @@ class FiberThreadlike {
     GetScheduler()->Run(_impl);
   }
 
-  FiberThreadlike() noexcept;
-  FiberThreadlike(FiberThreadlike&& t) noexcept;
-  FiberThreadlike& operator=(FiberThreadlike&& t) noexcept;
-  ~FiberThreadlike();
+  Thread() noexcept;
+  Thread(Thread&& t) noexcept;
+  Thread& operator=(Thread&& t) noexcept;
+  ~Thread();
 
-  void swap(FiberThreadlike& t) noexcept;
+  void swap(Thread& t) noexcept;
   [[nodiscard]] bool joinable() const noexcept;
   void join();
   void detach();
@@ -48,8 +48,8 @@ class FiberThreadlike {
   static unsigned int hardware_concurrency() noexcept;
 
  private:
-  Fiber* _impl;
+  Fiber* _impl{nullptr};
   FiberQueue _join_queue;
 };
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

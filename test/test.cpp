@@ -1,8 +1,10 @@
 #include <util/helpers.hpp>
 
 #include <yaclib/fault/config.hpp>
-#include <yaclib/fault/detail/inject_fault.hpp>
+#include <yaclib/fault/inject.hpp>
+#include <yaclib/fault/injector.hpp>
 #include <yaclib/log.hpp>
+#include <yaclib_std/thread>
 
 #include <cstdio>
 
@@ -16,7 +18,7 @@ class MyTestListener : public ::testing::EmptyTestEventListener {
  public:
   void OnTestStart(const testing::TestInfo& /*info*/) override {
     yaclib::SetSeed(seed);
-    std::cout << "\n-------------- state" << yaclib::detail::GetYielder()->GetState() << "--------------\n";
+    std::cout << "\n-------------- state" << yaclib::GetInjector()->GetState() << "--------------\n";
   }
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <yaclib/fault/thread.hpp>
+#include <yaclib_std/thread>
 
 #include <atomic>
 
@@ -12,9 +12,11 @@ class Injector {
   explicit Injector();
   void MaybeInject();
 
-  uint32_t GetState();
+  uint32_t GetState() const;
 
   void SetState(uint32_t state);
+
+  void SetPauseInject(bool pause);
 
   static void SetFrequency(uint32_t freq);
   static void SetSleepTime(uint32_t ns);
@@ -27,6 +29,7 @@ class Injector {
   static std::atomic_uint32_t sleep_time;
 
   uint32_t _count;
+  bool _pause;
 };
 
 }  // namespace yaclib::detail

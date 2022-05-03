@@ -4,7 +4,7 @@
 
 #include <chrono>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 struct SystemClock {
   using duration = std::chrono::microseconds;

@@ -12,11 +12,11 @@
 #define YACLIB_FAULT_MUTEX YACLIB_FAULT
 #include <yaclib_std/detail/mutex.hpp>
 
-#define YACLIB_FAULT_RECURSIVE_MUTEX YACLIB_FAULT
+#define YACLIB_FAULT_RECURSIVE_MUTEX 0
 #include <yaclib_std/detail/recursive_mutex.hpp>
 
-#define YACLIB_FAULT_RECURSIVE_TIMED_MUTEX YACLIB_FAULT
+#define YACLIB_FAULT_RECURSIVE_TIMED_MUTEX 0
 #include <yaclib_std/detail/recursive_timed_mutex.hpp>
 
-#define YACLIB_FAULT_TIMED_MUTEX YACLIB_FAULT
+#define YACLIB_FAULT_TIMED_MUTEX 0
 #include <yaclib_std/detail/timed_mutex.hpp>

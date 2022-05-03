@@ -1,20 +1,6 @@
 #pragma once
 
-#if YACLIB_FAULT_ATOMIC == 2  // TODO(myannyax) Implement
-#  error "YACLIB_FAULT=FIBER not implemented yet"
-
-#  include <yaclib/fault/detail/atomic.hpp>
-#  include <yaclib/fault/detail/fiber/atomic.hpp>
-
-#  include <atomic>
-
-namespace yaclib_std {
-
-template <typename T>
-using atomic = yaclib::detail::Atomic<yaclib::detail::fiber::Atomic<T>, T>;
-
-}  // namespace yaclib_std
-#elif YACLIB_FAULT_ATOMIC == 1
+#if YACLIB_FAULT_ATOMIC == 1 || YACLIB_FAULT_ATOMIC == 2
 #  include <yaclib/fault/detail/atomic.hpp>
 
 #  include <atomic>

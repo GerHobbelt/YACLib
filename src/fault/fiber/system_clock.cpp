@@ -1,6 +1,6 @@
-#include <yaclib/fault/detail/chrono/fiber_system_clock.hpp>
+#include <yaclib/fault/detail/fiber/system_clock.hpp>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 SystemClock::time_point SystemClock::now() {
   return time_point{duration{GetScheduler()->GetTimeUs()}};

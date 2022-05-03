@@ -11,6 +11,11 @@ list(APPEND YACLIB_INCLUDES
   ${YACLIB_INCLUDE_DIR}/fault/config.hpp
   ${YACLIB_INCLUDE_DIR}/fault/inject.hpp
   ${YACLIB_INCLUDE_DIR}/fault/injector.hpp
+  ${CMAKE_CURRENT_SOURCE_DIR}/util.hpp
+  )
+
+list(APPEND YACLIB_SOURCES
+  ${CMAKE_CURRENT_SOURCE_DIR}/util.cpp
   )
 
 if (YACLIB_FAULT)
@@ -26,10 +31,54 @@ if (YACLIB_FAULT)
     ${YACLIB_INCLUDE_DIR}/fault/detail/shared_mutex.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/shared_timed_mutex.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/timed_mutex.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/util.hpp
     )
 endif ()
 
 if (YACLIB_FAULT STREQUAL "FIBER")
+  list(APPEND YACLIB_HEADERS
+    ${YACLIB_INCLUDE_DIR}/fault/detail/thread/random_device.hpp
+    # chrono
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/system_clock.hpp
+
+    # mutexes
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/mutex.hpp
+
+    # condition
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/condition_variable.hpp
+
+    # fiber
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack_allocator.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/default_allocator.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/fiber.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/queue.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/scheduler.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/execution_context.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/thread.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/bidirectional_intrusive_list.hpp
+    )
+  list(APPEND YACLIB_SOURCES
+    # chrono
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/system_clock.cpp
+
+    # thread
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/thread.cpp
+
+    # mutex
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/mutex.cpp
+
+    # condition
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/condition_variable.cpp
+
+    # fibers
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/context/execution_context.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/context/default_allocator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/fiber.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/queue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/scheduler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/bidirectional_intrusive_list.cpp
+    )
 elseif (YACLIB_FAULT STREQUAL "THREAD")
   list(APPEND YACLIB_HEADERS
     ${YACLIB_INCLUDE_DIR}/fault/detail/thread/random_device.hpp
