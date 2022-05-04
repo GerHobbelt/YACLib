@@ -17,12 +17,16 @@ LockAwaiter AsyncMutex::Lock() {
   return LockAwaiter{*this};
 }
 
+UnlockAwaiter AsyncMutex::Unlock(IExecutor& executor) {
+  return UnlockAwaiter{*this, executor};
+}
+
 // todo rename
 void AsyncMutex::SimpleUnlock() {
   YACLIB_ERROR(_state.load(std::memory_order_relaxed) != NotLocked(), "unlock must be called after lock!");
   auto* head = _waiters;
   if (head == nullptr) {  // lock, no waiters
-    auto old_state = static_cast<void*>(head);
+    auto old_state = LockedNoWaiters();
 
     if (_state.compare_exchange_strong(old_state, NotLocked(), std::memory_order_release, std::memory_order_relaxed)) {
       return;
@@ -35,7 +39,7 @@ void AsyncMutex::SimpleUnlock() {
     YACLIB_DEBUG(old_state != nullptr && old_state != NotLocked(), "There must be awaiters!");
 
     // reverse
-    auto* next = reinterpret_cast<Job*>(old_state);
+    auto* next = static_cast<Job*>(old_state);
     do {
       auto* temp = static_cast<Job*>(next->next);
       next->next = head;
@@ -51,15 +55,4 @@ void AsyncMutex::SimpleUnlock() {
 
 LockAwaiter::LockAwaiter(AsyncMutex& mutex) : _mutex(mutex) {
 }
-
-bool LockAwaiter::await_ready() noexcept {
-  void* old_state = _mutex._state.load(std::memory_order_acquire);
-  if (old_state != _mutex.NotLocked()) {
-    return false;  // mutex is locked by another exec. thread
-  }
-  bool b =
-    _mutex._state.compare_exchange_strong(old_state, nullptr, std::memory_order_acquire, std::memory_order_relaxed);
-  return b;
-}
-
 }  // namespace yaclib
