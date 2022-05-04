@@ -1,0 +1,20 @@
+var searchData=
+[
+  ['debug_0',['Debug',['../namespaceyaclib_1_1detail.html#ae4b45284902ae7a74799320571a293e0aa603905470e2a5b8c13e96b579ef0dba',1,'yaclib::detail']]],
+  ['decref_1',['DecRef',['../classyaclib_1_1IRef.html#a7a6bb320f960c7765a9106996c0d0a50',1,'yaclib::IRef::DecRef()'],['../structyaclib_1_1detail_1_1NopeCounter.html#aed6719a1631276f42e616521b83478e7',1,'yaclib::detail::NopeCounter::DecRef()'],['../structyaclib_1_1detail_1_1AtomicCounter.html#a1d95a2022a1ce9353a12937d14d2b046',1,'yaclib::detail::AtomicCounter::DecRef()']]],
+  ['default_5fevent_2ehpp_2',['default_event.hpp',['../default__event_8hpp.html',1,'']]],
+  ['defaultdeleter_3',['DefaultDeleter',['../structyaclib_1_1detail_1_1DefaultDeleter.html',1,'yaclib::detail']]],
+  ['defaultevent_4',['DefaultEvent',['../namespaceyaclib_1_1detail.html#ae4376bc5df372d9ddcbed017ceadf8b8',1,'yaclib::detail']]],
+  ['delete_5',['Delete',['../structyaclib_1_1detail_1_1PromiseTypeDeleter.html#a48388b778435c944f0d9a73570a2eab9',1,'yaclib::detail::PromiseTypeDeleter::Delete()'],['../structyaclib_1_1detail_1_1DefaultDeleter.html#aedeca913a86cba6c490af2fbf49faf88',1,'yaclib::detail::DefaultDeleter::Delete()'],['../structyaclib_1_1detail_1_1SetAllDeleter.html#aa98b6dcbb1c47d61752811bf8dc74937',1,'yaclib::detail::SetAllDeleter::Delete()'],['../structyaclib_1_1detail_1_1SetOneDeleter.html#a2eb8f76b44fa91564e747d6ab444bef9',1,'yaclib::detail::SetOneDeleter::Delete()']]],
+  ['deletertype_6',['DeleterType',['../structyaclib_1_1detail_1_1AtomicCounter.html#aa507ceb0326799261ae8b5f42d038fd4',1,'yaclib::detail::AtomicCounter']]],
+  ['dependency_7',['Dependency',['../md_doc_dependency.html',1,'']]],
+  ['dependency_2emd_8',['dependency.md',['../dependency_8md.html',1,'']]],
+  ['design_9',['Design',['../md_doc_design.html',1,'']]],
+  ['design_2emd_10',['design.md',['../design_8md.html',1,'']]],
+  ['design_5fru_2emd_11',['design_ru.md',['../design__ru_8md.html',1,'']]],
+  ['destroy_12',['Destroy',['../structyaclib_1_1detail_1_1Destroy.html',1,'yaclib::detail']]],
+  ['detach_13',['Detach',['../classyaclib_1_1FutureOn.html#a7394eef5ba52753f7a59df1dd5881a43',1,'yaclib::FutureOn::Detach(Func &amp;&amp;f) &amp;&amp;'],['../classyaclib_1_1FutureOn.html#ab38aecdcfd3b9bfa9b72dc0115dfea97',1,'yaclib::FutureOn::Detach() &amp;&amp;'],['../classyaclib_1_1FutureOn.html#a9a4d47afba2d1dc2d41b72d02c54ddba',1,'yaclib::FutureOn::Detach(IExecutor &amp;e, Func &amp;&amp;f) &amp;&amp;'],['../classyaclib_1_1FutureOn.html#a9a4d47afba2d1dc2d41b72d02c54ddba',1,'yaclib::FutureOn::Detach(IExecutor &amp;e, Func &amp;&amp;f) &amp;&amp;'],['../classyaclib_1_1FutureBase.html#a9a4d47afba2d1dc2d41b72d02c54ddba',1,'yaclib::FutureBase::Detach()'],['../classyaclib_1_1FutureOn.html#a7394eef5ba52753f7a59df1dd5881a43',1,'yaclib::FutureOn::Detach()'],['../namespaceyaclib_1_1detail.html#a0f01f5f74ecf19049779864ab7af55daaf200763a0dca7d4843032c057804f9e9',1,'yaclib::detail::Detach()'],['../classyaclib_1_1FutureBase.html#a9a4d47afba2d1dc2d41b72d02c54ddba',1,'yaclib::FutureBase::Detach(IExecutor &amp;e, Func &amp;&amp;f) &amp;&amp;'],['../classyaclib_1_1FutureBase.html#ab38aecdcfd3b9bfa9b72dc0115dfea97',1,'yaclib::FutureBase::Detach() &amp;&amp;']]],
+  ['detachinline_14',['DetachInline',['../classyaclib_1_1FutureBase.html#a36f1089e841fc7176b7a077ca8f948fb',1,'yaclib::FutureBase::DetachInline(Func &amp;&amp;f) &amp;&amp;'],['../classyaclib_1_1FutureBase.html#a36f1089e841fc7176b7a077ca8f948fb',1,'yaclib::FutureBase::DetachInline(Func &amp;&amp;f) &amp;&amp;']]],
+  ['done_15',['Done',['../classyaclib_1_1detail_1_1AnyCombinatorBase.html#a6413f75417f76e463d784fa25391410e',1,'yaclib::detail::AnyCombinatorBase::Done()'],['../classyaclib_1_1detail_1_1AnyCombinatorBase_3_01V_00_01E_00_01WhenPolicy_1_1LastFail_01_4.html#a6497e2c94547296f62b746896739fae7',1,'yaclib::detail::AnyCombinatorBase&lt; V, E, WhenPolicy::LastFail &gt;::Done()'],['../classyaclib_1_1WaitGroup.html#ab2662f44b4f4fc10be41c44c2d21d14f',1,'yaclib::WaitGroup::Done()']]],
+  ['double_16',['Double',['../classCalculatorService.html#ac73e8ceb5a21805177143576eaf95870',1,'CalculatorService']]]
+];

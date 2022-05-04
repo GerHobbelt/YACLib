@@ -1,0 +1,6 @@
+<map id="yaclib::IExecutor" name="yaclib::IExecutor">
+<area shape="rect" id="node1" title=" " alt="" coords="89,80,204,107"/>
+<area shape="rect" id="node3" href="$classyaclib_1_1IThreadPool.html" title="Interface for thread&#45;pool&#45;like executors." alt="" coords="5,155,136,181"/>
+<area shape="rect" id="node4" href="$classyaclib_1_1detail_1_1Inline.html" title=" " alt="" coords="159,155,289,181"/>
+<area shape="rect" id="node2" href="$classyaclib_1_1IRef.html" title="Reference counting interface." alt="" coords="104,5,189,32"/>
+</map>
