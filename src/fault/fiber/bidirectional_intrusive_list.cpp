@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 void BiList::PushBack(BiNode* node) noexcept {
   _size++;
@@ -75,4 +75,4 @@ BiList& BiList::operator=(BiList&& other) noexcept {
   _tail = std::exchange(other._tail, &other._head);
   return *this;
 }
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

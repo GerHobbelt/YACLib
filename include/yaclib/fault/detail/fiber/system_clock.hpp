@@ -21,4 +21,4 @@ struct SystemClock {
   static time_point from_time_t(time_t c_time_point) noexcept;
 };
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

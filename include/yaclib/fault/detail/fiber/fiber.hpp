@@ -7,7 +7,7 @@
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
 #include <yaclib/util/detail/shared_func.hpp>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 using Routine = yaclib::IFuncPtr;
 
@@ -66,4 +66,4 @@ class Fiber : public IRef, public BiNodeSleep, public BiNodeWaitQueue {
   bool _threadlike_instance_alive{true};
 };
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

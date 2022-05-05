@@ -27,7 +27,7 @@ class Thread {
     _impl->SetCompleteCallback(yaclib::MakeFunc([&]() mutable {
       _join_queue.NotifyAll();
     }));
-    GetScheduler()->Run(_impl);
+    Scheduler::GetScheduler()->Schedule(_impl);
   }
 
   Thread() noexcept;
@@ -48,8 +48,11 @@ class Thread {
   static unsigned int hardware_concurrency() noexcept;
 
  private:
+  void AfterJoinOrDetach();
+
   Fiber* _impl{nullptr};
   FiberQueue _join_queue;
+  bool _joined_or_detached{false};
 };
 
 }  // namespace yaclib::detail::fiber

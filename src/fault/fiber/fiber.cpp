@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 static Fiber::Id next_id{1L};
 
@@ -87,4 +87,4 @@ bool Fiber::IsThreadlikeInstanceAlive() const {
   return _threadlike_instance_alive;
 }
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

@@ -2,7 +2,7 @@
 
 #include <sys/mman.h>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 // TODO(myannyax) change to getting actual page size
 static const size_t kPageSize = 4096;
@@ -64,4 +64,4 @@ size_t DefaultAllocator::GetMinStackSize() {
 
 thread_local DefaultAllocator gDefaultAllocator;
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

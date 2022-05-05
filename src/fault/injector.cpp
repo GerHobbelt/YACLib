@@ -23,7 +23,9 @@ void Injector::MaybeInject() {
 }
 
 bool Injector::NeedInject() {
-  if (_pause) return false;
+  if (_pause) {
+    return false;
+  }
   if (++_count >= yield_frequency) {
     Reset();
     return true;

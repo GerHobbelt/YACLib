@@ -1,12 +1,14 @@
 #include <util/helpers.hpp>
 
 #include <yaclib/fault/config.hpp>
-#include <yaclib/fault/inject.hpp>
-#include <yaclib/fault/injector.hpp>
 #include <yaclib/log.hpp>
-#include <yaclib_std/thread>
+
+#ifdef YACLIB_FIBER
+#  include <yaclib/fault/detail/fiber/scheduler.hpp>
+#endif
 
 #include <cstdio>
+#include <yaclib_std/thread>
 
 #include <gtest/gtest.h>
 
@@ -18,7 +20,6 @@ class MyTestListener : public ::testing::EmptyTestEventListener {
  public:
   void OnTestStart(const testing::TestInfo& /*info*/) override {
     yaclib::SetSeed(seed);
-    std::cout << "\n-------------- state" << yaclib::GetInjector()->GetState() << "--------------\n";
   }
 };
 
@@ -62,10 +63,13 @@ int main(int argc, char** argv) {
   int result = 0;
 #ifdef YACLIB_FIBER
   ::testing::UnitTest::GetInstance()->listeners().Append(new test::MyTestListener());
+  yaclib::detail::fiber::Scheduler scheduler;
+  yaclib::detail::fiber::Scheduler::Set(&scheduler);
   yaclib_std::thread tests([&]() {
     result = RUN_ALL_TESTS();
   });
   tests.join();
+  YACLIB_ERROR(scheduler.IsRunning(), "scheduler is still running when tests are finished");
 #else
   result = RUN_ALL_TESTS();
 #endif

@@ -5,6 +5,7 @@
 #include <yaclib/fault/detail/fiber/stack.hpp>
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
 #include <yaclib/log.hpp>
+#include <yaclib/util/func.hpp>
 
 #include <chrono>
 #include <list>
@@ -12,17 +13,16 @@
 #include <random>
 #include <vector>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 class Scheduler {
  public:
   friend class FiberQueue;
+  friend class Thread;
 
   Scheduler();
 
   [[nodiscard]] bool IsRunning() const;
-
-  static void Suspend();
 
   template <class Clock, class Duration>
   auto SleepUntil(const std::chrono::time_point<Clock, Duration>& sleep_time) {
@@ -53,9 +53,17 @@ class Scheduler {
 
   static void RescheduleCurrent();
 
-  void Run(Fiber* fiber);
+  void Stop();
+
+  static Scheduler* GetScheduler();
+
+  static void Set(Scheduler* scheduler);
 
  private:
+  static void Suspend();
+
+  void Schedule(Fiber* fiber);
+
   void AdvanceTime();
 
   void TickTime();
@@ -71,10 +79,8 @@ class Scheduler {
   bool _running;
 };
 
-Scheduler* GetScheduler();
-
 Fiber* PollRandomElementFromList(std::vector<Fiber*>& list);
 
 BiNode* PollRandomElementFromList(BiList& list);
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

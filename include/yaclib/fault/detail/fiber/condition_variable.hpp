@@ -66,8 +66,8 @@ class ConditionVariable {
   }
 
   template <typename Rep, typename Period, typename Predicate>
-  bool wait_for(std::unique_lock<yaclib::detail::fiber::Mutex>& lock, const std::chrono::duration<Rep, Period>& duration,
-                Predicate predicate) {
+  bool wait_for(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
+                const std::chrono::duration<Rep, Period>& duration, Predicate predicate) {
     GetInjector()->SetPauseInject(true);
     lock.unlock();
     _queue.Wait(duration);
@@ -84,4 +84,4 @@ class ConditionVariable {
   FiberQueue _queue;
 };
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

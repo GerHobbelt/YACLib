@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 struct BiNode {
   BiNode* prev = this;
@@ -37,4 +37,4 @@ class BiList final {
   std::size_t _size{0};
 };
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

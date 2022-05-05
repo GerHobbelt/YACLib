@@ -1,8 +1,7 @@
 #pragma once
 
-#include <yaclib_std/thread>
-
 #include <atomic>
+#include <yaclib_std/thread>
 
 namespace yaclib::detail {
 

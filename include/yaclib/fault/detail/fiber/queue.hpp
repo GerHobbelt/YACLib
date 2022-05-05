@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 class FiberQueue {
  public:
   void Wait();
@@ -14,7 +14,7 @@ class FiberQueue {
     auto* fiber = Scheduler::Current();
     auto* queue_node = dynamic_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
-    auto* scheduler = GetScheduler();
+    auto* scheduler = Scheduler::GetScheduler();
     auto time = scheduler->SleepFor(duration);
     if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
       scheduler->_sleep_list[time].Erase(dynamic_cast<BiNodeSleep*>(fiber));
@@ -31,7 +31,7 @@ class FiberQueue {
     auto* fiber = Scheduler::Current();
     auto* queue_node = dynamic_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
-    auto* scheduler = GetScheduler();
+    auto* scheduler = Scheduler::GetScheduler();
     auto time = scheduler->SleepUntil(time_point);
     if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
       scheduler->_sleep_list[time].Erase(dynamic_cast<BiNodeSleep*>(fiber));
@@ -50,4 +50,4 @@ class FiberQueue {
  private:
   BiList _queue;
 };
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

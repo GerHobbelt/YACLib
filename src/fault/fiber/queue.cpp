@@ -1,6 +1,6 @@
 #include <yaclib/fault/detail/fiber/queue.hpp>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 void FiberQueue::Wait() {
   auto* fiber = Scheduler::Current();
@@ -14,7 +14,7 @@ void FiberQueue::NotifyAll() {
     all.push_back(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(_queue.PopBack())));
   }
   for (const auto& elem : all) {
-    GetScheduler()->Run(elem);
+    Scheduler::GetScheduler()->Schedule(elem);
   }
 }
 
@@ -23,6 +23,6 @@ void FiberQueue::NotifyOne() {
     return;
   }
   auto* fiber = PollRandomElementFromList(_queue);
-  GetScheduler()->Run(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(fiber)));
+  Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(fiber)));
 }
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

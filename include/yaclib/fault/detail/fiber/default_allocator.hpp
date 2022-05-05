@@ -5,7 +5,7 @@
 
 #include <vector>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
 
 /**
  * Allocator used by default
@@ -27,4 +27,4 @@ class DefaultAllocator final : public IStackAllocator {
 
 extern thread_local DefaultAllocator gDefaultAllocator;
 
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber

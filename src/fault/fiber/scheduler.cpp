@@ -4,7 +4,9 @@
 
 #include <iostream>
 
-namespace yaclib::detail {
+namespace yaclib::detail::fiber {
+
+Scheduler* current_scheduler = nullptr;
 
 static thread_local Fiber* current;
 
@@ -24,9 +26,17 @@ void Scheduler::Suspend() {
   fiber->Yield();
 }
 
-Scheduler* GetScheduler() {
-  thread_local static Scheduler scheduler;
-  return &scheduler;
+void Scheduler::Stop() {
+  Scheduler::Set(nullptr);
+  YACLIB_DEBUG(_running, "scheduler still running on stop");
+}
+
+Scheduler* Scheduler::GetScheduler() {
+  return current_scheduler;
+}
+
+void Scheduler::Set(Scheduler* scheduler) {
+  current_scheduler = scheduler;
 }
 
 Fiber* PollRandomElementFromList(std::vector<Fiber*>& list) {
@@ -43,7 +53,7 @@ BiNode* PollRandomElementFromList(BiList& list) {
   return next;
 }
 
-void Scheduler::Run(Fiber* fiber) {
+void Scheduler::Schedule(Fiber* fiber) {
   _queue.push_back(fiber);
   if (!IsRunning()) {
     _running = true;
@@ -119,4 +129,4 @@ void Scheduler::RescheduleCurrent() {
 
 Scheduler::Scheduler() : _running(false), _time(0) {
 }
-}  // namespace yaclib::detail
+}  // namespace yaclib::detail::fiber
