@@ -25,4 +25,14 @@ void FiberQueue::NotifyOne() {
   auto* fiber = PollRandomElementFromList(_queue);
   Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(fiber)));
 }
+
+FiberQueue::~FiberQueue() {
+  YACLIB_ERROR(!_queue.Empty(), "queue must be empty on destruction - potentially deadlock");
+}
+
+FiberQueue& FiberQueue::operator=(FiberQueue&& other) {
+  _queue = std::move(other._queue);
+  other._queue = BiList();
+  return *this;
+}
 }  // namespace yaclib::detail::fiber

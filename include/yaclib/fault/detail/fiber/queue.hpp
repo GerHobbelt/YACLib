@@ -7,6 +7,10 @@
 namespace yaclib::detail::fiber {
 class FiberQueue {
  public:
+  FiberQueue() = default;
+  FiberQueue(FiberQueue&& other) = default;
+  FiberQueue& operator=(FiberQueue&& other) noexcept;
+
   void Wait();
 
   template <typename Rep, typename Period>
@@ -46,6 +50,8 @@ class FiberQueue {
   void NotifyAll();
 
   void NotifyOne();
+
+  ~FiberQueue();
 
  private:
   BiList _queue;
