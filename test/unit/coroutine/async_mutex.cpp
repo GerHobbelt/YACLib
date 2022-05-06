@@ -23,7 +23,6 @@ yaclib::Future<void> coro2(int& sum) {
   co_return;
 }
 
-/*
 TEST(AsyncMutex, JustWorks) {
   using namespace std::chrono_literals;
 
@@ -42,7 +41,6 @@ TEST(AsyncMutex, JustWorks) {
     auto tmp = sum;
     sum = tmp + 1;
     co_await m.Unlock();
-    // m.SimpleUnlock();  // automatic unlocking
     co_return;
   };
 
@@ -52,7 +50,6 @@ TEST(AsyncMutex, JustWorks) {
       done.fetch_add(1, std::memory_order_seq_cst);
     });
   }
-  std::cout << "After submit in main thread" << std::endl;
 
   while (!(done.load(std::memory_order_seq_cst) == N)) {
   }
@@ -64,9 +61,7 @@ TEST(AsyncMutex, JustWorks) {
   tp->HardStop();
   tp->Wait();
 }
-*/
 
-/*
 TEST(AsyncMutex, CoroOfDifferentTypes) {
   using namespace std::chrono_literals;
 
@@ -124,7 +119,6 @@ TEST(AsyncMutex, CoroOfDifferentTypes) {
   tp->HardStop();
   tp->Wait();
 }
-*/
 
 TEST(AsyncMutex, Guard) {
   using namespace std::chrono_literals;
@@ -134,18 +128,21 @@ TEST(AsyncMutex, Guard) {
   auto tp = yaclib::MakeThreadPool();
 
   int sum = 0;
-  const int N = 2;
+  const int N = 2000;
   std::array<yaclib::Future<void>, N> f;
 
   yaclib_std::atomic<int> done = 0;
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    auto g = co_await yaclib::GuardAwaiter(m);  // lock
-    std::cout << "After co_await" << std::endl;
+    auto g = co_await m.Guard();  // lock
     auto tmp = sum;
     sum = tmp + 1;
-    std::cout << "After unlock" << std::endl;
+    co_await g.Unlock();
+    co_await g.Lock();
+    tmp = sum;
+    sum = tmp + 1;
+    co_await g.Unlock();
   };
 
   for (i = 0; i < N; ++i) {
@@ -161,7 +158,7 @@ TEST(AsyncMutex, Guard) {
   for (int i = 0; i < N; ++i) {
     std::move(f[i]).Get();
   }
-  EXPECT_EQ(N, sum);
+  EXPECT_EQ(2 * N, sum);
   tp->HardStop();
   tp->Wait();
 }

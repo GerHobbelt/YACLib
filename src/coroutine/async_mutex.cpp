@@ -10,49 +10,26 @@
 
 namespace yaclib {
 
-AsyncMutex::AsyncMutex() : _state(NotLocked()), _waiters(nullptr) {
+AsyncMutex::AsyncMutex() : _state(NotLocked()), _waiters(nullptr), _need_cs_batch(false) {
 }
 
-LockAwaiter AsyncMutex::Lock() {
+AsyncMutex::LockAwaiter AsyncMutex::Lock() {
   return LockAwaiter{*this};
 }
 
-UnlockAwaiter AsyncMutex::Unlock(IExecutor& executor) {
-  return UnlockAwaiter{*this, executor};
-}
-
-// todo rename
-void AsyncMutex::SimpleUnlock() {
-  YACLIB_ERROR(_state.load(std::memory_order_relaxed) != NotLocked(), "unlock must be called after lock!");
-  auto* head = _waiters;
-  if (head == nullptr) {  // lock, no waiters
-    auto old_state = LockedNoWaiters();
-
-    if (_state.compare_exchange_strong(old_state, NotLocked(), std::memory_order_release, std::memory_order_relaxed)) {
-      return;
-    }
-    // now we have one more waiter
-
-    old_state = _state.exchange(nullptr, std::memory_order_acquire);
-    // old_state - linked stack of all mutex' waiters; now state is 'lock & no waiters', p.g. cleared
-
-    YACLIB_DEBUG(old_state != nullptr && old_state != NotLocked(), "There must be awaiters!");
-
-    // reverse
-    auto* next = static_cast<Job*>(old_state);
-    do {
-      auto* temp = static_cast<Job*>(next->next);
-      next->next = head;
-      head = next;
-      next = temp;
-    } while (next != nullptr);
+bool AsyncMutex::TryLock() {
+  void* old_state = _state.load(std::memory_order_acquire);
+  if (old_state != NotLocked()) {
+    return false;  // mutex is locked by another execution thread
   }
-  YACLIB_DEBUG(head != nullptr, "Must be locked with at least 1 awaiter!");
-
-  _waiters = static_cast<Job*>(head->next);
-  head->Call();  // inline resume
+  return _state.compare_exchange_strong(old_state, LockedNoWaiters(), std::memory_order_acquire,
+                                        std::memory_order_relaxed);
 }
 
-LockAwaiter::LockAwaiter(AsyncMutex& mutex) : _mutex(mutex) {
+AsyncMutex::GuardAwaiter AsyncMutex::Guard() noexcept {
+  return GuardAwaiter(*this);
+}
+
+AsyncMutex::LockAwaiter::LockAwaiter(AsyncMutex& mutex) : _mutex(mutex) {
 }
 }  // namespace yaclib
