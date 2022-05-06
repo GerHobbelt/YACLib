@@ -1,9 +1,6 @@
 #pragma once
 
 #include <yaclib/fault/detail/fiber/queue.hpp>
-#include <yaclib/fault/inject.hpp>
-
-#include <mutex>
 
 namespace yaclib::detail::fiber {
 
@@ -19,11 +16,7 @@ class Mutex {
   bool try_lock() noexcept;
   void unlock() noexcept;
 
-  using native_handle_type = std::mutex::native_handle_type;
-
-  inline native_handle_type native_handle();
-
- private:
+ protected:
   FiberQueue _queue;
   bool _occupied{false};
 };

@@ -51,6 +51,8 @@ class FiberQueue {
 
   void NotifyOne();
 
+  bool Empty();
+
   ~FiberQueue();
 
  private:

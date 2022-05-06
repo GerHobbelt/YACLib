@@ -30,9 +30,13 @@ FiberQueue::~FiberQueue() {
   YACLIB_ERROR(!_queue.Empty(), "queue must be empty on destruction - potentially deadlock");
 }
 
-FiberQueue& FiberQueue::operator=(FiberQueue&& other) {
+FiberQueue& FiberQueue::operator=(FiberQueue&& other) noexcept {
   _queue = std::move(other._queue);
   other._queue = BiList();
   return *this;
+}
+
+bool FiberQueue::Empty() {
+  return _queue.Empty();
 }
 }  // namespace yaclib::detail::fiber

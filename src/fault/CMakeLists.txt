@@ -43,6 +43,10 @@ if (YACLIB_FAULT STREQUAL "FIBER")
 
     # mutexes
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/mutex.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/timed_mutex.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/recursive_mutex.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/shared_mutex.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/shared_timed_mutex.hpp
 
     # condition
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/condition_variable.hpp
@@ -67,6 +71,8 @@ if (YACLIB_FAULT STREQUAL "FIBER")
 
     # mutex
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/mutex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/recursive_mutex.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/shared_mutex.cpp
 
     # condition
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/condition_variable.cpp
