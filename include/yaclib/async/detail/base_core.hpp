@@ -9,29 +9,40 @@
 
 namespace yaclib::detail {
 
-class BaseCore : public InlineCore {
+class CCore : public PCore {
  public:
-  explicit BaseCore(State s) noexcept;
-
   void SetExecutor(IExecutor* executor) noexcept;
   [[nodiscard]] IExecutor* GetExecutor() const noexcept;
 
-  void SetCallback(BaseCore& callback) noexcept;
-  void SetCallbackInline(InlineCore& callback, bool async = false) noexcept;
-  [[nodiscard]] bool SetWait(IRef& callback) noexcept;
-  [[nodiscard]] bool ResetWait() noexcept;
+  void SetCall(CCore& callback) noexcept;
+  void SetHere(PCore& callback, State state) noexcept;
 
-  void Stop() noexcept;
+  [[nodiscard]] bool SetWait(IRef& callback, State state) noexcept;
+  [[nodiscard]] bool ResetWait() noexcept;
+  void SetDrop(State state) noexcept;
+
   [[nodiscard]] bool Empty() const noexcept;
   [[nodiscard]] bool Alive() const noexcept;
 
- protected:
-  yaclib_std::atomic<State> _state;
-  IExecutorPtr _executor;
-  IntrusivePtr<IRef> _callback;
-  IntrusivePtr<IRef> _caller;
+  void SetResult() noexcept;
 
-  void Submit() noexcept;
+ protected:
+  explicit CCore(State s) noexcept;
+
+#ifdef YACLIB_LOG_DEBUG
+  ~CCore() noexcept override;
+#endif
+
+  yaclib_std::atomic<State> _state;  //  TODO(MBkkt) merge with callback
+  IRef* _caller{nullptr};
+  IRef* _callback{nullptr};
+  IExecutor* _executor{nullptr};
+
+ private:
+  bool SetCallback(IRef& callback, State state) noexcept;
+
+  void Submit(CCore& callback) noexcept;
+  void Submit(PCore& callback, State state) noexcept;
 };
 
 }  // namespace yaclib::detail

@@ -4,22 +4,23 @@
 
 namespace yaclib::detail {
 
-class InlineCore : public Job {
+class PCore : public Job {
  public:
-  enum class State : char {
-    Empty = 0,
-    HasResult = 1,
-    HasCallback = 2,
-    HasCallbackInline = 3,
-    HasAsyncCallback = 4,
-    HasWait = 5,
-    HasStop = 6,
+  enum State : char {
+    kEmpty = 0,
+    kResult = 1,
+    kCall = 2,
+    kHereCall = 3,
+    kHereWrap = 4,
+    kWaitDetach = 5,
+    kWaitStop = 6,
+    kWait = 7,
   };
 
   void Call() noexcept override;
-  void Cancel() noexcept override;
+  void Drop() noexcept override;
 
-  virtual void CallInline(InlineCore&, State) noexcept;
+  virtual void Here(PCore& caller, State state) noexcept;
 };
 
 }  // namespace yaclib::detail

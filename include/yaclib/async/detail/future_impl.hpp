@@ -8,9 +8,9 @@
 namespace yaclib {
 
 template <typename V, typename E>
-FutureBase<V, E>::~FutureBase() {
+FutureBase<V, E>::~FutureBase() noexcept {
   if (_core) {
-    _core->Stop();
+    std::move(*this).Stop();
   }
 }
 
@@ -37,6 +37,7 @@ Result<V, E> FutureBase<V, E>::Get() && noexcept {
   if (!Ready()) {
     Wait(*this);
   }
+  _core->SetExecutor(nullptr);
   auto core = std::exchange(_core, nullptr);
   return std::move(core->Get());
 }
@@ -50,20 +51,20 @@ const Result<V, E>& FutureBase<V, E>::Touch() const& noexcept {
 template <typename V, typename E>
 Result<V, E> FutureBase<V, E>::Touch() && noexcept {
   YACLIB_ERROR(!Ready(), "Try to touch result of not ready Future");
+  _core->SetExecutor(nullptr);
   auto core = std::exchange(_core, nullptr);
   return std::move(core->Get());
 }
 
 template <typename V, typename E>
-void FutureBase<V, E>::Stop() && {
-  _core->Stop();
-  _core = nullptr;
+void FutureBase<V, E>::Stop() && noexcept {
+  _core.Release()->SetDrop(detail::PCore::kWaitStop);
 }
 
 template <typename V, typename E>
-FutureOn<V, E> FutureBase<V, E>::On(IExecutor& e) && {
-  this->_core->SetExecutor(&e);
-  return FutureOn<V, E>{std::move(this->_core)};
+FutureOn<V, E> FutureBase<V, E>::On(IExecutor& e) && noexcept {
+  _core->SetExecutor(&e);
+  return FutureOn<V, E>{std::move(_core)};
 }
 
 template <typename V, typename E>
@@ -76,8 +77,8 @@ auto FutureBase<V, E>::Then(IExecutor& e, Func&& f) && {
 }
 
 template <typename V, typename E>
-void FutureBase<V, E>::Detach() && {
-  _core = nullptr;
+void FutureBase<V, E>::Detach() && noexcept {
+  _core.Release()->SetDrop(detail::PCore::kWaitDetach);
 }
 
 template <typename V, typename E>
@@ -112,7 +113,7 @@ auto Future<V, E>::ThenInline(Func&& f) && {
 }
 
 template <typename V, typename E>
-Future<V, E> FutureOn<V, E>::On(std::nullptr_t) && {
+Future<V, E> FutureOn<V, E>::On(std::nullptr_t) && noexcept {
   this->_core->SetExecutor(nullptr);
   return {std::move(this->_core)};
 }

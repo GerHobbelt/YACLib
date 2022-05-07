@@ -7,7 +7,7 @@ namespace yaclib {
 // TODO(MBkkt) Maybe add callbacks overload for source_location, stacktrace arguments?
 
 using LogCallback = void (*)(std::string_view file, std::size_t line, std::string_view function,
-                             std::string_view condition, std::string_view message);
+                             std::string_view condition, std::string_view message) noexcept;
 
 namespace detail {
 
@@ -21,7 +21,7 @@ enum class LogLevel : char {
 void SetCallback(LogLevel level, LogCallback callback) noexcept;
 
 void LogMessage(LogLevel level, std::string_view file, std::size_t line, std::string_view func,
-                std::string_view condition, std::string_view message);
+                std::string_view condition, std::string_view message) noexcept;
 
 }  // namespace detail
 }  // namespace yaclib

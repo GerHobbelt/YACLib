@@ -3,96 +3,159 @@
 #include <yaclib/exe/executor.hpp>
 #include <yaclib/exe/job.hpp>
 #include <yaclib/log.hpp>
-#include <yaclib/util/intrusive_ptr.hpp>
+#include <yaclib/util/detail/nope_counter.hpp>
 
 namespace yaclib::detail {
 
-void InlineCore::Call() noexcept {
+void PCore::Call() noexcept {
   YACLIB_DEBUG(true, "Pure virtual call");
 }
 
-void InlineCore::Cancel() noexcept {
+void PCore::Drop() noexcept {
   YACLIB_DEBUG(true, "Pure virtual call");
 }
 
-void InlineCore::CallInline(InlineCore&, InlineCore::State) noexcept {
+void PCore::Here(PCore&, PCore::State) noexcept {
   YACLIB_DEBUG(true, "Pure virtual call");
 }
 
-BaseCore::BaseCore(State state) noexcept : _state{state} {
+static constexpr NopeCounter<IRef> kEmptyRef;
+
+CCore::CCore(State state) noexcept : _state{state}, _caller{const_cast<NopeCounter<IRef>*>(&kEmptyRef)} {
 }
 
-void BaseCore::SetExecutor(IExecutor* executor) noexcept {
+void CCore::SetExecutor(IExecutor* executor) noexcept {
+  // FIXME
+  //  if (_executor) {
+  //    _executor->DecRef();
+  //  }
+  //  if (executor) {
+  //    executor->IncRef();
+  //  }
   _executor = executor;
 }
 
-IExecutor* BaseCore::GetExecutor() const noexcept {
-  return _executor.Get();
+IExecutor* CCore::GetExecutor() const noexcept {
+  return _executor;
 }
 
-void BaseCore::SetCallback(BaseCore& callback) noexcept {
-  YACLIB_DEBUG(_callback != nullptr, "callback not empty, so future already used");
-  _callback.Reset(NoRefTag{}, &callback);
-  const auto state = _state.exchange(State::HasCallback, std::memory_order_acq_rel);
-  if (state == State::HasResult) {  //  TODO(MBkkt) rel + fence(acquire) instead of acq_rel
-    Submit();
+void CCore::SetCall(CCore& callback) noexcept {
+  callback._caller = this;  // move ownership
+  if (!SetCallback(callback, kCall)) {
+    Submit(callback);
   }
 }
 
-void BaseCore::SetCallbackInline(InlineCore& callback, bool async) noexcept {
-  YACLIB_DEBUG(_callback != nullptr, "callback not empty, so future already used");
-  _callback.Reset(NoRefTag{}, &callback);
-  const auto new_state =
-    State{static_cast<char>(static_cast<char>(State::HasCallbackInline) + static_cast<char>(async))};
-  const auto old_state = _state.exchange(new_state, std::memory_order_acq_rel);
-  if (old_state == State::HasResult) {  //  TODO(MBkkt) rel + fence(acquire) instead of acq_rel
-    static_cast<InlineCore&>(*_callback).CallInline(*this, new_state);
+void CCore::SetHere(PCore& callback, State state) noexcept {
+  YACLIB_DEBUG(state != kHereCall && state != kHereWrap, "");
+  if (!SetCallback(callback, state)) {
+    Submit(callback, state);
   }
 }
 
-bool BaseCore::SetWait(IRef& callback) noexcept {
-  YACLIB_DEBUG(_callback != nullptr, "callback not empty, so future already used");
-  _callback.Reset(NoRefTag{}, &callback);
-  auto expected = State::Empty;
-  if (!_state.compare_exchange_strong(expected, State::HasWait, std::memory_order_acq_rel)) {
-    _callback.Reset(NoRefTag{}, nullptr);  // This is mean we have Result
-    return false;
+bool CCore::SetWait(IRef& callback, State state) noexcept {
+  YACLIB_DEBUG(state != kWait, "");
+  return SetCallback(callback, state);
+}
+
+bool CCore::ResetWait() noexcept {
+  auto expected = kWait;
+  if (_state.load(std::memory_order_relaxed) != expected ||
+      !_state.compare_exchange_strong(expected, kEmpty, std::memory_order_acquire, std::memory_order_relaxed)) {
+    return false;  // want relaxed and need wait
   }
+  YACLIB_DEBUG(_callback == nullptr, "callback empty, but should be our wait function");
+  _callback = nullptr;  // want acquire and don't need wait
   return true;
 }
 
-bool BaseCore::ResetWait() noexcept {
-  auto expected = State::HasWait;
-  if (_state.load(std::memory_order_acquire) == expected &&
-      _state.compare_exchange_strong(expected, State::Empty, std::memory_order_acq_rel)) {
-    YACLIB_DEBUG(_callback == nullptr, "callback empty, but should be our wait function");
-    _callback.Reset(NoRefTag{}, nullptr);  // This is mean we don't have executed callback
-    return true;
+void CCore::SetDrop(State state) noexcept {
+  YACLIB_DEBUG(state != kWaitDetach && state != kWaitStop, "");
+  if (!SetCallback(const_cast<NopeCounter<IRef>&>(kEmptyRef), state)) {
+    _executor = nullptr;
+    DecRef();
   }
-  return false;
 }
 
-void BaseCore::Stop() noexcept {
+bool CCore::Empty() const noexcept {
   YACLIB_DEBUG(_callback != nullptr, "callback not empty, so future already used");
-  _state.store(State::HasStop, std::memory_order_release);
+  return _state.load(std::memory_order_acquire) == kEmpty;
 }
 
-bool BaseCore::Empty() const noexcept {
+bool CCore::Alive() const noexcept {
+  return _state.load(std::memory_order_acquire) != kWaitStop;
+}
+
+void CCore::SetResult() noexcept {
+  const auto state = _state.exchange(kResult, std::memory_order_acq_rel);
+  auto* caller = std::exchange(_caller, const_cast<NopeCounter<IRef>*>(&kEmptyRef));
+  YACLIB_DEBUG(caller == nullptr, "");
+  caller->DecRef();
+  auto* callback = std::exchange(_callback, nullptr);
+  switch (state) {
+    case kCall: {
+      YACLIB_DEBUG(callback == nullptr, "");
+      Submit(static_cast<CCore&>(*callback));
+    } break;
+    case kHereCall:
+      [[fallthrough]];
+    case kHereWrap: {
+      YACLIB_DEBUG(callback == nullptr, "");
+      YACLIB_DEBUG(caller != &kEmptyRef, "");
+      Submit(static_cast<PCore&>(*callback), state);
+    } break;
+    case kWaitDetach:
+      [[fallthrough]];
+    case kWaitStop:
+      _executor = nullptr;
+      DecRef();
+      [[fallthrough]];
+    case kWait:
+      YACLIB_DEBUG(callback == nullptr, "");
+      callback->DecRef();
+      [[fallthrough]];
+    default:
+      break;
+  }
+}
+
+bool CCore::SetCallback(IRef& callback, State state) noexcept {
   YACLIB_DEBUG(_callback != nullptr, "callback not empty, so future already used");
-  return _state.load(std::memory_order_acquire) == State::Empty;
+  auto expected = kEmpty;
+  if (_state.load(std::memory_order_acquire) != expected) {
+    return false;  // want acquire here
+  }
+  _callback = &callback;
+  if (!_state.compare_exchange_strong(expected, state, std::memory_order_release, std::memory_order_acquire)) {
+    _callback = nullptr;
+    return false;  // want acquire here
+  }
+  return true;  // want release here
 }
 
-bool BaseCore::Alive() const noexcept {
-  return _state.load(std::memory_order_acquire) != State::HasStop;
-}
-
-void BaseCore::Submit() noexcept {
+void CCore::Submit(CCore& callback) noexcept {
   YACLIB_DEBUG(_executor == nullptr, "we try to submit callback to executor, but don't see valid executor");
-  YACLIB_DEBUG(_callback == nullptr, "we try to submit callback to executor, but don't see valid callback");
-  auto& callback = static_cast<BaseCore&>(*_callback.Release());
-  // We create strong cyclic reference, but we know we remove reference from callback to caller in Call or Cancel
-  callback._caller = this;  // TODO(MBkkt) We want store without IncRef, destructive move
-  _executor->Submit(callback);
+  auto* executor = std::exchange(_executor, nullptr);
+  executor->Submit(callback);
+  // FIXME executor.DecRef();
 }
+
+void CCore::Submit(PCore& callback, State state) noexcept {
+  YACLIB_DEBUG(_caller != &kEmptyRef, "");
+  YACLIB_DEBUG(_callback != nullptr, "");
+  _executor = nullptr;
+  callback.Here(*this, state);
+  DecRef();
+}
+
+#ifdef YACLIB_LOG_DEBUG
+CCore::~CCore() noexcept {
+  auto state = _state.load(std::memory_order_acquire);
+  YACLIB_DEBUG(state != kResult && state != kWaitStop, "Invalid state");
+  YACLIB_DEBUG(_caller != &kEmptyRef, "Invalid state");
+  YACLIB_DEBUG(_callback != nullptr, "Invalid state");
+  YACLIB_DEBUG(_executor != nullptr, "Invalid state");
+}
+#endif
 
 }  // namespace yaclib::detail
