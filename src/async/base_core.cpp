@@ -127,6 +127,7 @@ bool CCore::SetCallback(IRef& callback, State state) noexcept {
   }
   _callback = &callback;
   if (!_state.compare_exchange_strong(expected, state, std::memory_order_release, std::memory_order_acquire)) {
+    YACLIB_DEBUG(expected != kResult, "");
     _callback = nullptr;
     return false;  // want acquire here
   }
