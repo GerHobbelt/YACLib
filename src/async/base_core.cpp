@@ -19,9 +19,9 @@ void PCore::Here(PCore&, PCore::State) noexcept {
   YACLIB_DEBUG(true, "Pure virtual call");
 }
 
-static constexpr NopeCounter<IRef> kEmptyRef;
+static NopeCounter<IRef> kEmptyRef;
 
-CCore::CCore(State state) noexcept : _state{state}, _caller{const_cast<NopeCounter<IRef>*>(&kEmptyRef)} {
+CCore::CCore(State state) noexcept : _state{state}, _caller{&kEmptyRef} {
 }
 
 void CCore::SetExecutor(IExecutor* executor) noexcept {
@@ -88,7 +88,7 @@ bool CCore::Alive() const noexcept {
 
 void CCore::SetResult() noexcept {
   const auto state = _state.exchange(kResult, std::memory_order_acq_rel);
-  auto* caller = std::exchange(_caller, const_cast<NopeCounter<IRef>*>(&kEmptyRef));
+  auto* caller = std::exchange(_caller, &kEmptyRef);
   YACLIB_DEBUG(caller == nullptr, "");
   caller->DecRef();
   auto* callback = std::exchange(_callback, nullptr);
