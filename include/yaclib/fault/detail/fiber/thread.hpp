@@ -18,7 +18,7 @@ class Thread {
   using id = Fiber::Id;
   using native_handle_type = std::thread::native_handle_type;
 
-  template <class Fp, class... Args>
+  template <typename Fp, typename... Args>
   inline explicit Thread(Fp&& f, Args&&... args) {
     yaclib::IFuncPtr func = yaclib::MakeFunc([&, f = std::forward<Fp>(f)]() mutable {
       f(std::forward(args)...);
@@ -44,7 +44,6 @@ class Thread {
 
   native_handle_type native_handle() noexcept;
 
-  // TODO(myannyax) don't use auto?
   static unsigned int hardware_concurrency() noexcept;
 
  private:

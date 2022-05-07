@@ -31,13 +31,16 @@ if (YACLIB_FAULT)
     ${YACLIB_INCLUDE_DIR}/fault/detail/shared_mutex.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/shared_timed_mutex.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/timed_mutex.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/random_device.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/util.hpp
+    )
+  list(APPEND YACLIB_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/random_device.cpp
     )
 endif ()
 
 if (YACLIB_FAULT STREQUAL "FIBER")
   list(APPEND YACLIB_HEADERS
-    ${YACLIB_INCLUDE_DIR}/fault/detail/thread/random_device.hpp
     # chrono
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/system_clock.hpp
 
@@ -84,13 +87,6 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/queue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/scheduler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/bidirectional_intrusive_list.cpp
-    )
-elseif (YACLIB_FAULT STREQUAL "THREAD")
-  list(APPEND YACLIB_HEADERS
-    ${YACLIB_INCLUDE_DIR}/fault/detail/thread/random_device.hpp
-    )
-  list(APPEND YACLIB_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/thread/random_device.cpp
     )
 endif ()
 

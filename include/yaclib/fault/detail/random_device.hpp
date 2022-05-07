@@ -11,14 +11,9 @@ class RandomDevice {
  public:
   using result_type = std::mt19937::result_type;
 
-  static constexpr const result_type kMin = 0;
-  static constexpr const result_type kMax = 0xFFFFFFFFU;
-  static constexpr const result_type kEntropy = 0;
-
   RandomDevice();
 
-  explicit RandomDevice(const std::string& /*token*/) : RandomDevice() {
-  }
+  explicit RandomDevice(const std::string& /*token*/);
 
   result_type operator()() noexcept;
 

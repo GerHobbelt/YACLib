@@ -24,14 +24,14 @@ class Scheduler {
 
   [[nodiscard]] bool IsRunning() const;
 
-  template <class Clock, class Duration>
+  template <typename Clock, typename Duration>
   auto SleepUntil(const std::chrono::time_point<Clock, Duration>& sleep_time) {
     std::chrono::time_point<Clock, Duration> now = Clock::now();
     Duration duration = sleep_time - now;
     return SleepFor(duration);
   }
 
-  template <class Rep, class Period>
+  template <typename Rep, typename Period>
   auto SleepFor(const std::chrono::duration<Rep, Period>& sleep_duration) {
     uint64_t us = std::chrono::duration_cast<std::chrono::microseconds>(sleep_duration).count();
     if (us <= 0) {

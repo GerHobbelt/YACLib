@@ -1,7 +1,7 @@
 #pragma once
 
 #if YACLIB_FAULT_RANDOM_DEVICE == 1 || YACLIB_FAULT_RANDOM_DEVICE == 2
-#  include <yaclib/fault/detail/thread/random_device.hpp>
+#  include <yaclib/fault/detail/random_device.hpp>
 
 namespace yaclib_std::random {
 
