@@ -91,15 +91,16 @@ void CCore::SetResult() noexcept {
   auto* caller = std::exchange(_caller, &kEmptyRef);
   YACLIB_DEBUG(caller == nullptr, "");
   caller->DecRef();
-  auto* callback = std::exchange(_callback, nullptr);
   switch (state) {
     case kCall: {
+      auto* callback = std::exchange(_callback, nullptr);
       YACLIB_DEBUG(callback == nullptr, "");
       Submit(static_cast<CCore&>(*callback));
     } break;
     case kHereCall:
       [[fallthrough]];
     case kHereWrap: {
+      auto* callback = std::exchange(_callback, nullptr);
       YACLIB_DEBUG(callback == nullptr, "");
       YACLIB_DEBUG(caller != &kEmptyRef, "");
       Submit(static_cast<PCore&>(*callback), state);
@@ -110,10 +111,11 @@ void CCore::SetResult() noexcept {
       _executor = nullptr;
       DecRef();
       [[fallthrough]];
-    case kWait:
+    case kWait: {
+      auto* callback = std::exchange(_callback, nullptr);
       YACLIB_DEBUG(callback == nullptr, "");
       callback->DecRef();
-      [[fallthrough]];
+    } break;
     default:
       break;
   }
