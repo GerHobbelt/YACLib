@@ -9,34 +9,29 @@
 
 #include <iostream>  // debug
 
-/*
-TODO
-* interfaces
-*/
-
 namespace yaclib {
 
+template <bool Fifo>
 class AsyncMutex;
 class LockAwaiter;
-template <bool Fifo>
-class UnlockAwaiterBase;
 class GuardAwaiter;
 
+template <bool Fifo = false>
 class AsyncMutex {
  public:
   enum class UnlockType { Default, ContinueSameThread, CriticalSectionSameThread };
 
  private:
-  class UnlockAwaiterBase {
+  template <UnlockType Type>
+  class UnlockAwaiter {
    public:
-    explicit UnlockAwaiterBase(AsyncMutex& mutex, IExecutor& executor) : _mutex(mutex), _executor(executor) {
+    explicit UnlockAwaiter(AsyncMutex& mutex, IExecutor& executor) : _mutex(mutex), _executor(executor) {
     }
 
     void await_resume() {
     }
 
-   protected:
-    bool AwaitReadyHelper(bool fifo) noexcept {
+    bool await_ready() noexcept {
       if (_mutex._waiters != _mutex.LockedNoWaiters()) {
         return false;
       }
@@ -51,7 +46,7 @@ class AsyncMutex {
 
       Job* head = static_cast<Job*>(_mutex._state.exchange(_mutex.LockedNoWaiters()));
 
-      if (fifo) {
+      if (Fifo) {
         Job* prev = nullptr;
         do {
           Job* tmp = static_cast<Job*>(head->next);
@@ -66,18 +61,6 @@ class AsyncMutex {
       _mutex._waiters = head;
       _mutex._need_cs_batch = !old_need_batch;
       return false;
-    }
-    AsyncMutex& _mutex;
-    IExecutor& _executor;
-  };
-
-  template <UnlockType Type, bool Fifo>
-  class TypedUnlockAwaiter : public UnlockAwaiterBase {
-   public:
-    using UnlockAwaiterBase::UnlockAwaiterBase;
-
-    bool await_ready() noexcept {
-      return AwaitReadyHelper(Fifo);
     }
 
     template <class V, class E>
@@ -106,40 +89,16 @@ class AsyncMutex {
         }
       }
     }
-  };
-
-  template <bool Fifo>
-  class ReschedulingUnlockAwaiter : public UnlockAwaiterBase {
-   public:
-    ReschedulingUnlockAwaiter(AsyncMutex& mutex, IExecutor& continuation_executor, IExecutor& cs_executor)
-        : UnlockAwaiterBase(mutex, continuation_executor), _executor_for_cs(cs_executor) {
-    }
-
-    bool await_ready() noexcept {
-      return AwaitReadyHelper(Fifo);
-    }
-
-    template <class V, class E>
-    bool await_suspend(yaclib_std::coroutine_handle<detail::PromiseType<V, E>> handle) {
-      Job* next = _mutex._waiters;
-
-      YACLIB_ERROR(next != nullptr, "Mutex' waiters must be non-empty");
-
-      _mutex._waiters = static_cast<Job*>(next->next);
-      _mutex._need_cs_batch = true;
-
-      _executor.Submit(handle.promise());
-      _executor_for_cs.Submit(*next);
-      return false;
-    }
 
    private:
-    IExecutor& _executor_for_cs;  // for critical section
+    AsyncMutex& _mutex;
+    IExecutor& _executor;
   };
 
   class LockAwaiter {
    public:
-    explicit LockAwaiter(AsyncMutex& mutex);
+    explicit LockAwaiter(AsyncMutex& mutex) : _mutex(mutex) {
+    }
 
     bool await_ready() noexcept {
       void* old_state = _mutex._state.load(std::memory_order_acquire);
@@ -190,26 +149,24 @@ class AsyncMutex {
       return std::move(*this);
     }
 
-    LockAwaiter& Lock() {
+    LockAwaiter& lock() {
       _owns = true;
       return *this;
     }
 
-    template <UnlockType Type = UnlockType::Default, bool Fifo = false>
-    TypedUnlockAwaiter<Type, Fifo> Unlock(IExecutor& executor = CurrentThreadPool()) {
+    template <UnlockType Type = UnlockType::Default>
+    UnlockAwaiter<Type> Unlock(IExecutor& executor = CurrentThreadPool()) {
       _owns = false;
-      return TypedUnlockAwaiter<Type, Fifo>{_mutex, executor};
+      return UnlockAwaiter<Type>{LockAwaiter::_mutex, executor};
     }
 
-    template <bool Fifo = false>
-    ReschedulingUnlockAwaiter<Fifo> Unlock(IExecutor& e1, IExecutor& e2) {
-      _owns = false;
-      return ReschedulingUnlockAwaiter<Fifo>(_mutex, e1, e2);
+    void unlock(IExecutor& executor = CurrentThreadPool()) {
+      LockAwaiter::_mutex.unlock(executor);
     }
 
     ~GuardAwaiter() {
       if (_owns) {
-        _mutex.SimpleUnlock();
+        LockAwaiter::_mutex.unlock();
       }
     }
 
@@ -218,23 +175,28 @@ class AsyncMutex {
   };
 
  public:
-  AsyncMutex();
-
-  LockAwaiter Lock();
-  bool TryLock();
-
-  template <UnlockType Type = UnlockType::Default, bool Fifo = false>
-  TypedUnlockAwaiter<Type, Fifo> Unlock(IExecutor& executor = CurrentThreadPool()) {
-    return TypedUnlockAwaiter<Type, Fifo>{*this, executor};
+  AsyncMutex() : _state(NotLocked()), _waiters(nullptr), _need_cs_batch(false) {
   }
 
-  template <bool Fifo = false>
-  ReschedulingUnlockAwaiter<Fifo> Unlock(IExecutor& e1, IExecutor& e2) {
-    return ReschedulingUnlockAwaiter<Fifo>(*this, e1, e2);
+  LockAwaiter lock() {
+    return LockAwaiter{*this};
   }
 
-  template <bool Fifo = false>
-  void SimpleUnlock() {  // TODO rename
+  bool try_lock() {
+    void* old_state = _state.load(std::memory_order_acquire);
+    if (old_state != NotLocked()) {
+      return false;  // mutex is locked by another execution thread
+    }
+    return _state.compare_exchange_strong(old_state, LockedNoWaiters(), std::memory_order_acquire,
+                                          std::memory_order_relaxed);
+  }
+
+  template <UnlockType Type = UnlockType::Default>
+  UnlockAwaiter<Type> Unlock(IExecutor& executor = MakeInline()) {
+    return UnlockAwaiter<Type>{*this, executor};
+  }
+
+  void unlock(IExecutor& executor = CurrentThreadPool()) {
     YACLIB_ERROR(_state.load(std::memory_order_relaxed) != NotLocked(), "unlock must be called after lock!");
     auto* head = _waiters;
     if (head == LockedNoWaiters()) {
@@ -245,7 +207,7 @@ class AsyncMutex {
       }
       old_state = _state.exchange(LockedNoWaiters(), std::memory_order_acquire);
 
-      YACLIB_DEBUG(old_state != LockedNoWaiters() && old_state != NotLocked(), "There must be awaiters!");
+      YACLIB_ERROR(old_state != LockedNoWaiters() && old_state != NotLocked(), "There must be awaiters!");
 
       if constexpr (Fifo) {
         auto* next = static_cast<Job*>(old_state);
@@ -255,15 +217,18 @@ class AsyncMutex {
           head = next;
           next = temp;
         } while (next != nullptr);
+      } else {
+        head = static_cast<Job*>(old_state);
       }
     }
-    YACLIB_DEBUG(head != nullptr, "Must be locked with at least 1 awaiter!");
 
     _waiters = static_cast<Job*>(head->next);
-    CurrentThreadPool().Submit(*head);
+    executor.Submit(*head);
   }
 
-  GuardAwaiter Guard() noexcept;
+  GuardAwaiter Guard() noexcept {
+    return GuardAwaiter(*this);
+  }
 
  private:
   YACLIB_INLINE void* NotLocked() noexcept {

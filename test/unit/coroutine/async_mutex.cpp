@@ -37,10 +37,10 @@ TEST(AsyncMutex, JustWorks) {
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    co_await m.Lock();  // lock
+    co_await m.lock();  // lock
     auto tmp = sum;
     sum = tmp + 1;
-    co_await m.Unlock();
+    m.unlock();
     co_return;
   };
 
@@ -78,19 +78,19 @@ TEST(AsyncMutex, CoroOfDifferentTypes) {
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    co_await m.Lock();  // lock
+    co_await m.lock();  // lock
     auto tmp = sum;
     sum = tmp + 1;
-    co_await m.Unlock();
-    // m.SimpleUnlock();  // automatic unlocking
+    m.unlock();
+    // m.unlock();  // automatic unlocking
     co_return;
   };
   auto coro2 = [&]() -> yaclib::Future<int> {
-    co_await m.Lock();  // lock
+    co_await m.lock();  // lock
     auto tmp = sum;
     sum = tmp + 1;
-    co_await m.Unlock();
-    // m.SimpleUnlock();  // automatic unlocking
+    co_await m.Unlock(*tp);
+    // m.unlock();  // automatic unlocking
     co_return 42;
   };
 
@@ -139,7 +139,7 @@ TEST(AsyncMutex, Guard) {
     auto tmp = sum;
     sum = tmp + 1;
     co_await g.Unlock();
-    co_await g.Lock();
+    co_await g.lock();
     tmp = sum;
     sum = tmp + 1;
     co_await g.Unlock();
