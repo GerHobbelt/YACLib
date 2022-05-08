@@ -34,7 +34,7 @@ class AsyncMutex {
     return LockAwaiter{*this};
   }
 
-  YACLIB_INLINE bool try_lock() noexcept {
+  YACLIB_INLINE bool TryLock() noexcept {
     void* old_state = _state.load(std::memory_order_acquire);
     if (old_state != NotLocked()) {
       return false;  // mutex is locked by another execution thread
@@ -80,6 +80,10 @@ class AsyncMutex {
 
   GuardAwaiter Guard() noexcept {
     return GuardAwaiter(*this);
+  }
+
+  YACLIB_INLINE LockGuard TryGuard() noexcept {
+    return LockGuard{*this, TryLock()};
   }
 
  private:
