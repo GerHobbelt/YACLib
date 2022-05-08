@@ -37,10 +37,10 @@ TEST(AsyncMutex, JustWorks) {
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    co_await m.lock();  // lock
+    co_await m.Lock();  // Lock
     auto tmp = sum;
     sum = tmp + 1;
-    m.unlock();
+    m.UnlockHere();
     co_return;
   };
 
@@ -55,7 +55,7 @@ TEST(AsyncMutex, JustWorks) {
   }
 
   for (auto&& future : f) {
-    std::move(future).Get();
+    std::ignore = std::move(future).Get();
   }
   EXPECT_EQ(N, sum);
   tp->HardStop();
@@ -78,19 +78,19 @@ TEST(AsyncMutex, CoroOfDifferentTypes) {
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    co_await m.lock();  // lock
+    co_await m.Lock();  // Lock
     auto tmp = sum;
     sum = tmp + 1;
-    m.unlock();
-    // m.unlock();  // automatic unlocking
+    m.UnlockHere();
+    // m.UnlockHere();  // automatic unlocking
     co_return;
   };
   auto coro2 = [&]() -> yaclib::Future<int> {
-    co_await m.lock();  // lock
+    co_await m.Lock();  // Lock
     auto tmp = sum;
     sum = tmp + 1;
     co_await m.Unlock(*tp);
-    // m.unlock();  // automatic unlocking
+    // m.UnlockHere();  // automatic unlocking
     co_return 42;
   };
 
@@ -112,8 +112,8 @@ TEST(AsyncMutex, CoroOfDifferentTypes) {
   }
 
   for (int i = 0; i < N; ++i) {
-    std::move(f[i]).Get();
-    std::move(fi[i]).Get();
+    std::ignore = std::move(f[i]).Get();
+    std::ignore = std::move(fi[i]).Get();
   }
   EXPECT_EQ(2 * N, sum);
   tp->HardStop();
@@ -135,11 +135,11 @@ TEST(AsyncMutex, Guard) {
   int i = 0;
 
   auto coro1 = [&]() -> yaclib::Future<void> {
-    auto g = co_await m.Guard();  // lock
+    auto g = co_await m.Guard();  // Lock
     auto tmp = sum;
     sum = tmp + 1;
     co_await g.Unlock();
-    co_await g.lock();
+    co_await g.Lock();
     tmp = sum;
     sum = tmp + 1;
     co_await g.Unlock();
@@ -156,7 +156,7 @@ TEST(AsyncMutex, Guard) {
   }
 
   for (int i = 0; i < N; ++i) {
-    std::move(f[i]).Get();
+    std::ignore = std::move(f[i]).Get();
   }
   EXPECT_EQ(2 * N, sum);
   tp->HardStop();
