@@ -3,7 +3,7 @@
 namespace yaclib::detail::fiber {
 
 SystemClock::time_point SystemClock::now() {
-  return time_point{duration{Scheduler::GetScheduler()->GetTimeUs()}};
+  return time_point{duration{fault::Scheduler::GetScheduler()->GetTimeUs()}};
 }
 
 time_t SystemClock::to_time_t(const SystemClock::time_point& time_point) noexcept {

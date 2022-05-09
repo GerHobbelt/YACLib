@@ -14,13 +14,18 @@
 #include <vector>
 
 namespace yaclib::detail::fiber {
+class FiberQueue;
+}
+
+namespace yaclib::fault {
 
 class Scheduler {
  public:
-  friend class FiberQueue;
-  friend class Thread;
+  friend class detail::fiber::FiberQueue;
 
   Scheduler();
+
+  void Schedule(detail::fiber::Fiber* fiber);
 
   [[nodiscard]] bool IsRunning() const;
 
@@ -39,17 +44,17 @@ class Scheduler {
     }
     auto time = GetTimeUs() + us;
     auto* current_fiber = Current();
-    BiList& sleep_list = _sleep_list[GetTimeUs() + us];
-    sleep_list.PushBack(dynamic_cast<BiNodeSleep*>(current_fiber));
+    detail::fiber::BiList& sleep_list = _sleep_list[GetTimeUs() + us];
+    sleep_list.PushBack(dynamic_cast<detail::fiber::BiNodeSleep*>(current_fiber));
     Suspend();
     return time;
   }
 
   [[nodiscard]] uint64_t GetTimeUs() const;
 
-  static Fiber* Current();
+  static detail::fiber::Fiber* Current();
 
-  static Fiber::Id GetId();
+  static detail::fiber::Fiber::Id GetId();
 
   static void RescheduleCurrent();
 
@@ -62,25 +67,25 @@ class Scheduler {
  private:
   static void Suspend();
 
-  void Schedule(Fiber* fiber);
-
   void AdvanceTime();
 
   void TickTime();
 
-  Fiber* GetNext();
+  detail::fiber::Fiber* GetNext();
 
   void RunLoop();
 
   void WakeUpNeeded();
   uint64_t _time;
-  std::vector<Fiber*> _queue;
-  std::map<uint64_t, BiList> _sleep_list;
+  std::vector<detail::fiber::Fiber*> _queue;
+  std::map<uint64_t, detail::fiber::BiList> _sleep_list;
   bool _running;
 };
 
+}  // namespace yaclib::fault
+
+namespace yaclib::detail::fiber {
 Fiber* PollRandomElementFromList(std::vector<Fiber*>& list);
 
 BiNode* PollRandomElementFromList(BiList& list);
-
 }  // namespace yaclib::detail::fiber

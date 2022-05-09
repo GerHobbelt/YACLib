@@ -19,7 +19,7 @@ void Thread::swap(Thread& t) noexcept {
 
 bool Thread::joinable() const noexcept {
   return !_joined_or_detached &&
-         (Scheduler::Current() == nullptr || Scheduler::Current()->GetId() != this->_impl->GetId());
+         (fault::Scheduler::Current() == nullptr || fault::Scheduler::Current()->GetId() != this->_impl->GetId());
 }
 
 void Thread::join() {

@@ -63,8 +63,8 @@ int main(int argc, char** argv) {
   int result = 0;
 #ifdef YACLIB_FIBER
   ::testing::UnitTest::GetInstance()->listeners().Append(new test::MyTestListener());
-  yaclib::detail::fiber::Scheduler scheduler;
-  yaclib::detail::fiber::Scheduler::Set(&scheduler);
+  yaclib::fault::Scheduler scheduler;
+  yaclib::fault::Scheduler::Set(&scheduler);
   yaclib_std::thread tests([&]() {
     result = RUN_ALL_TESTS();
   });

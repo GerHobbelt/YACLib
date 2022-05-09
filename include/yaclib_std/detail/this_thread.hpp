@@ -7,17 +7,17 @@ namespace yaclib_std::this_thread {
 
 template <class Clock, class Duration>
 inline void sleep_until(const std::chrono::time_point<Clock, Duration>& sleep_time) {
-  yaclib::detail::fiber::Scheduler::GetScheduler()->SleepUntil(sleep_time);
+  yaclib::fault::Scheduler::GetScheduler()->SleepUntil(sleep_time);
 }
 
 template <class Rep, class Period>
 void sleep_for(const std::chrono::duration<Rep, Period>& sleep_duration) {
-  yaclib::detail::fiber::Scheduler::GetScheduler()->SleepFor(sleep_duration);
+  yaclib::fault::Scheduler::GetScheduler()->SleepFor(sleep_duration);
 }
 
-inline constexpr auto* yield = &yaclib::detail::fiber::Scheduler::RescheduleCurrent;
+inline constexpr auto* yield = &yaclib::fault::Scheduler::RescheduleCurrent;
 
-inline constexpr auto* get_id = &yaclib::detail::fiber::Scheduler::GetId;
+inline constexpr auto* get_id = &yaclib::fault::Scheduler::GetId;
 
 }  // namespace yaclib_std::this_thread
 //#elif YACLIB_FAULT_THIS_THREAD == 1  // TODO(myannyax) Maybe implement
