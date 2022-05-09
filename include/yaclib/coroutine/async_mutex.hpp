@@ -24,7 +24,7 @@ class AsyncMutex {
     return LockAwaiter{*this};
   }
 
-  bool TryLock() noexcept {
+  [[nodiscard]] bool TryLock() noexcept {
     void* old_state = _state.load(std::memory_order_acquire);
     if (old_state != NotLocked()) {
       return false;  // mutex is locked by another execution thread
@@ -57,31 +57,40 @@ class AsyncMutex {
  private:
   class [[nodiscard]] LockGuard {
    public:
-    explicit LockGuard(AsyncMutex& mutex, bool owns) noexcept : _mutex(&mutex), _owns(owns) {
+    explicit LockGuard(AsyncMutex& m, std::defer_lock_t) noexcept : _mutex{&m}, _owns{false} {
     }
-  
-    YACLIB_INLINE LockAwaiter Lock() noexcept {
+    explicit LockGuard(AsyncMutex& m, std::try_to_lock_t) noexcept : _mutex{&m}, _owns{m.TryLock()} {
+    }
+    explicit LockGuard(AsyncMutex& m, std::adopt_lock_t) noexcept : _mutex{&m}, _owns{true} {
+    }
+
+    [[nodiscard]] bool owns_lock() const noexcept {
+      return _owns;
+    }
+
+    [[nodiscard]] explicit operator bool() const noexcept {
+      return owns_lock();
+    }
+
+    auto Lock() noexcept {
       YACLIB_ERROR(_owns, "Cannot lock already locked mutex");
       _owns = true;
       return _mutex->Lock();
     }
   
     template <UnlockType Type = UnlockType::Auto>
-    UnlockAwaiter<Type> Unlock(IExecutor& executor = CurrentThreadPool()) {
+    auto Unlock(IExecutor& executor = CurrentThreadPool()) {
       YACLIB_ERROR(!_owns, "Cannot unlock not locked mutex");
       _owns = false;
       return _mutex->Unlock<Type>(executor);
     }
   
     void UnlockHere(IExecutor& executor = CurrentThreadPool()/*default value should exist only if we don't have co_await Unlock, so don't have symmetric transfer*/) noexcept {
+      YACLIB_ERROR(!_owns, "Cannot unlock not locked mutex");
+      _owns = false;
       _mutex->UnlockHere(executor);
     }
-  
-    [[nodiscard]] AsyncMutex* Release() noexcept {
-      _owns = false;
-      return std::exchange(_mutex, nullptr);
-    }
-  
+    
     ~LockGuard() noexcept {
       if (_owns) {
         YACLIB_INFO(true, "Better use co_await Guard::Unlock<UnlockType>(executor)");
