@@ -24,43 +24,43 @@ class ConditionVariable {
   template <typename Predicate>
   void wait(std::unique_lock<yaclib::detail::fiber::Mutex>& lock, Predicate predicate) {
     while (!predicate()) {
-      wait(lock);
+      WaitImpl(lock, NoTimeoutTag{});
     }
   }
 
   template <typename Clock, typename Duration>
   std::cv_status wait_until(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                             const std::chrono::time_point<Clock, Duration>& time_point) {
-    GetInjector()->SetPauseInject(true);
-    lock.unlock();
-    bool timeout = _queue.Wait(time_point);
-    lock.lock();
-    GetInjector()->SetPauseInject(false);
+    auto timeout = WaitImpl(lock, time_point);
     return timeout ? std::cv_status::timeout : std::cv_status::no_timeout;
   }
 
   template <typename Clock, typename Duration, typename Predicate>
   bool wait_until(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                   const std::chrono::time_point<Clock, Duration>& time_point, Predicate predicate) {
-    wait_until(lock, time_point);
+    while (!predicate()) {
+      if (WaitImpl(lock, time_point)) {
+        return predicate();
+      }
+    }
     return predicate();
   }
 
   template <typename Rep, typename Period>
   std::cv_status wait_for(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                           const std::chrono::duration<Rep, Period>& duration) {
-    GetInjector()->SetPauseInject(true);
-    lock.unlock();
-    bool timeout = _queue.Wait(duration);
-    lock.lock();
-    GetInjector()->SetPauseInject(false);
+    auto timeout = WaitImpl(lock, duration);
     return timeout ? std::cv_status::timeout : std::cv_status::no_timeout;
   }
 
   template <typename Rep, typename Period, typename Predicate>
   bool wait_for(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                 const std::chrono::duration<Rep, Period>& duration, Predicate predicate) {
-    wait_for(lock, duration);
+    while (!predicate()) {
+      if (WaitImpl(lock, duration)) {
+        return predicate();
+      }
+    }
     return predicate();
   }
 
@@ -69,6 +69,18 @@ class ConditionVariable {
   native_handle_type native_handle();
 
  private:
+  template <typename Time>
+  bool WaitImpl(std::unique_lock<yaclib::detail::fiber::Mutex>& lock, Time time) {
+    InjectFault();
+    GetInjector()->SetPauseInject(true);
+    lock.unlock();
+    bool timeout = _queue.Wait(time);  // can return false without notification
+    lock.lock();
+    GetInjector()->SetPauseInject(false);
+    InjectFault();
+    return timeout;
+  }
+
   FiberQueue _queue;
 };
 

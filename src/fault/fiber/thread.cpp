@@ -27,7 +27,7 @@ void Thread::join() {
   _joined_or_detached = true;
   // TODO(myannyax): allow joining from other threads
   while (_impl->GetState() != Completed) {
-    _join_queue.Wait();
+    _join_queue.Wait(NoTimeoutTag{});
   }
   AfterJoinOrDetach();
 }

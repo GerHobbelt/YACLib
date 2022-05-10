@@ -5,13 +5,16 @@
 #include <vector>
 
 namespace yaclib::detail::fiber {
+
+struct NoTimeoutTag {};
+
 class FiberQueue {
  public:
   FiberQueue() = default;
   FiberQueue(FiberQueue&& other) = default;
   FiberQueue& operator=(FiberQueue&& other) noexcept;
 
-  void Wait();
+  bool Wait(NoTimeoutTag);
 
   template <typename Rep, typename Period>
   bool Wait(const std::chrono::duration<Rep, Period>& duration) {

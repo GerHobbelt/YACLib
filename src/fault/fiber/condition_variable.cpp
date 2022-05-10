@@ -11,11 +11,7 @@ void ConditionVariable::notify_all() noexcept {
 }
 
 void ConditionVariable::wait(std::unique_lock<yaclib::detail::fiber::Mutex>& lock) noexcept {
-  GetInjector()->SetPauseInject(true);
-  lock.unlock();
-  _queue.Wait();
-  lock.lock();
-  GetInjector()->SetPauseInject(false);
+  WaitImpl(lock, NoTimeoutTag{});
 }
 
 ConditionVariable::native_handle_type ConditionVariable::native_handle() {
