@@ -4,6 +4,7 @@
 #include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/fault/detail/fiber/stack.hpp>
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
+#include <yaclib/fault/inject.hpp>
 #include <yaclib/log.hpp>
 #include <yaclib/util/func.hpp>
 

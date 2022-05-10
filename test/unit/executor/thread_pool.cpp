@@ -541,7 +541,7 @@ void Current(yaclib::IThreadPoolPtr& tp) {
 }
 
 // TODO(myannyax) racey for fibers... do fiber thread local memory
-#if !defined(YACLIB_FIBER)
+#if YACLIB_FAULT != 2
 TEST_F(SingleLightThread, Current) {
   Current(_tps[0]);
 }

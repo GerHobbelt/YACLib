@@ -9,8 +9,10 @@ void FiberQueue::Wait() {
 }
 
 void FiberQueue::NotifyAll() {
-  while (!_queue.Empty()) {
-    fault::Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(_queue.PopBack())));
+  auto all = std::move(_queue);
+  _queue = BiList();
+  while (!all.Empty()) {
+    fault::Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(all.PopBack())));
   }
 }
 

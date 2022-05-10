@@ -3,7 +3,7 @@
 #include <yaclib/fault/config.hpp>
 #include <yaclib/log.hpp>
 
-#ifdef YACLIB_FIBER
+#if YACLIB_FAULT == 2
 #  include <yaclib/fault/detail/fiber/scheduler.hpp>
 #endif
 
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
   test::InitFault();
   testing::InitGoogleTest(&argc, argv);
   int result = 0;
-#ifdef YACLIB_FIBER
+#if YACLIB_FAULT == 2
   ::testing::UnitTest::GetInstance()->listeners().Append(new test::MyTestListener());
   yaclib::fault::Scheduler scheduler;
   yaclib::fault::Scheduler::Set(&scheduler);

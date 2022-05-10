@@ -6,11 +6,10 @@ namespace yaclib::detail::fiber {
 
 void BiList::PushBack(BiNode* node) noexcept {
   _size++;
-  node->next = _tail->next;
-  _tail->next = node;
-  node->prev = _tail;
+  node->next = &_head;
+  _head.prev->next = node;
+  node->prev = _head.prev;
   _head.prev = node;
-  _tail = node;
 }
 
 bool BiList::Empty() const noexcept {
@@ -27,9 +26,6 @@ bool BiList::Erase(BiNode* node) noexcept {
   BiNode* next = node->next;
   prev->next = next;
   next->prev = prev;
-  if (node == _tail) {
-    _tail = prev;
-  }
   node->next = nullptr;
   node->prev = nullptr;
   return true;
@@ -39,15 +35,13 @@ BiList::BiList(BiList&& other) noexcept {
   if (this == &other || other.Empty()) {
     return;
   }
-  _head.next = std::exchange(other._head.next, &other._head);
-  _head.prev = std::exchange(other._head.prev, &other._head);
-  _tail = std::exchange(other._tail, &other._head);
+  *this = std::move(other);
 }
 
 BiNode* BiList::PopBack() {
   _size--;
-  auto* elem = _tail;
-  Erase(_tail);
+  auto* elem = _head.prev;
+  Erase(_head.prev);
   return elem;
 }
 
@@ -72,7 +66,8 @@ BiList& BiList::operator=(BiList&& other) noexcept {
   }
   _head.next = std::exchange(other._head.next, &other._head);
   _head.prev = std::exchange(other._head.prev, &other._head);
-  _tail = std::exchange(other._tail, &other._head);
+  _head.next->prev = &_head;
+  _head.prev->next = &_head;
   return *this;
 }
 }  // namespace yaclib::detail::fiber

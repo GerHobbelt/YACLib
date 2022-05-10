@@ -490,7 +490,7 @@ TYPED_TEST(Error, Simple2) {
 }
 
 // race condition on CurrentThreadPool for fibers
-#if !defined(YACLIB_FIBER)
+#if YACLIB_FAULT != 2
 
 TEST(Pipeline, Simple2) {
   auto tp1 = yaclib::MakeThreadPool(2);

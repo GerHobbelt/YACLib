@@ -33,7 +33,6 @@ class BiList final {
 
  private:
   BiNode _head;
-  BiNode* _tail = &_head;  // need for PushBack
   std::size_t _size{0};
 };
 

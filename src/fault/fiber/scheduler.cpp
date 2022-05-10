@@ -40,6 +40,7 @@ void Scheduler::Set(Scheduler* scheduler) {
 }
 
 void Scheduler::Schedule(detail::fiber::Fiber* fiber) {
+  InjectFault();
   _queue.push_back(fiber);
   if (!IsRunning()) {
     _running = true;
