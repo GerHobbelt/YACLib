@@ -9,7 +9,7 @@ namespace yaclib::detail::thread {
 
 class RandomDevice {
  public:
-  using result_type = std::mt19937::result_type;
+  using result_type = std::mt19937_64::result_type;
 
   RandomDevice();
 
@@ -32,7 +32,7 @@ class RandomDevice {
   RandomDevice& operator=(const RandomDevice&) = delete;
 
  private:
-  std::mt19937 _eng;
+  std::mt19937_64 _eng;
 };
 
 }  // namespace yaclib::detail::thread

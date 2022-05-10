@@ -16,7 +16,7 @@
 
 namespace yaclib::detail::fiber {
 class FiberQueue;
-}
+}  // namespace yaclib::detail::fiber
 
 namespace yaclib::fault {
 
@@ -77,6 +77,7 @@ class Scheduler {
   void RunLoop();
 
   void WakeUpNeeded();
+
   uint64_t _time;
   std::vector<detail::fiber::Fiber*> _queue;
   std::map<uint64_t, detail::fiber::BiList> _sleep_list;

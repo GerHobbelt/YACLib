@@ -12,7 +12,7 @@ void SetFaultFrequency(std::uint32_t freq);
 
 /**
  * Sets seed for random, which will be used when deciding when to yield, for fibers scheduler and random wrapper for
- * tests. Default is 228.
+ * tests. Default is 1239.
  */
 void SetSeed(std::uint32_t seed);
 

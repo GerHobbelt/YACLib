@@ -5,7 +5,7 @@
 namespace yaclib::detail::fiber {
 
 void fiber::SharedMutex::lock() {
-  while (_occupied) {
+  if (_occupied) {
     _exclusive_queue.Wait(NoTimeoutTag{});
   }
   LockHelper();
@@ -30,7 +30,7 @@ void SharedMutex::unlock() noexcept {
 }
 
 void SharedMutex::lock_shared() {
-  while (_occupied && _exclusive_mode) {
+  if (_occupied && _exclusive_mode) {
     _exclusive_queue.Wait(NoTimeoutTag{});
   }
   SharedLockHelper();

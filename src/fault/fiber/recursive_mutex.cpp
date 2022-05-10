@@ -3,14 +3,14 @@
 
 namespace yaclib::detail::fiber {
 void fiber::RecursiveMutex::lock() {
-  while (_occupied_count > 0 && _owner_id != fault::Scheduler::GetId()) {
+  if (_occupied_count != 0 && _owner_id != fault::Scheduler::GetId()) {
     _queue.Wait(NoTimeoutTag{});
   }
   LockHelper();
 }
 
 bool RecursiveMutex::try_lock() noexcept {
-  if (_occupied_count > 0 && _owner_id != fault::Scheduler::GetId()) {
+  if (_occupied_count != 0 && _owner_id != fault::Scheduler::GetId()) {
     return false;
   }
   LockHelper();

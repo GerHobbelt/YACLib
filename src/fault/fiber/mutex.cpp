@@ -3,7 +3,7 @@
 namespace yaclib::detail::fiber {
 
 void Mutex::lock() {
-  while (_occupied) {
+  if (_occupied) {
     _queue.Wait(NoTimeoutTag{});
   }
   _occupied = true;

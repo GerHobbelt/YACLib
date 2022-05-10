@@ -62,12 +62,6 @@ FiberState Fiber::GetState() {
   return _state;
 }
 
-void Fiber::IncRef() noexcept {
-}
-
-void Fiber::DecRef() noexcept {
-}
-
 void Fiber::SetCompleteCallback(Routine routine) {
   if (routine == nullptr) {
     if (_complete_callback == nullptr) {

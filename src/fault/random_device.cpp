@@ -16,11 +16,11 @@ double RandomDevice::entropy() const noexcept {
 }
 
 constexpr RandomDevice::result_type RandomDevice::min() {
-  return std::mt19937::min();
+  return std::mt19937_64::min();
 }
 
 constexpr RandomDevice::result_type RandomDevice::max() {
-  return std::mt19937::max();
+  return std::mt19937_64::max();
 }
 
 void RandomDevice::reset() {

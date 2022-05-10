@@ -21,7 +21,7 @@ enum FiberState {
   Completed,
 };
 
-class Fiber : public IRef, public BiNodeSleep, public BiNodeWaitQueue {
+class Fiber : public BiNodeSleep, public BiNodeWaitQueue {
  public:
   using Id = uint64_t;
 
@@ -46,9 +46,6 @@ class Fiber : public IRef, public BiNodeSleep, public BiNodeWaitQueue {
   void SetThreadlikeInstanceDead();
 
   [[nodiscard]] bool IsThreadlikeInstanceAlive() const;
-
-  void IncRef() noexcept override;
-  void DecRef() noexcept override;
 
  private:
   [[noreturn]] static void Trampoline(void* arg);
