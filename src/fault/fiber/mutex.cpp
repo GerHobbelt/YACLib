@@ -21,4 +21,8 @@ void Mutex::unlock() noexcept {
   _occupied = false;
   _queue.NotifyOne();
 }
+
+Mutex::native_handle_type Mutex::native_handle() {
+  return nullptr;
+}
 }  // namespace yaclib::detail::fiber

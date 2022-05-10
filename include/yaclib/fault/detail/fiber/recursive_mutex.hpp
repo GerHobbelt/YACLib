@@ -16,6 +16,10 @@ class RecursiveMutex {
   bool try_lock() noexcept;
   void unlock() noexcept;
 
+  using native_handle_type = void*;
+
+  inline native_handle_type native_handle();
+
  protected:
   void LockHelper();
 

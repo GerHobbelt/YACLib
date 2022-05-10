@@ -2,6 +2,8 @@
 
 #include <yaclib/fault/detail/fiber/queue.hpp>
 
+#include <mutex>
+
 namespace yaclib::detail::fiber {
 
 class Mutex {
@@ -15,6 +17,10 @@ class Mutex {
   void lock();
   bool try_lock() noexcept;
   void unlock() noexcept;
+
+  using native_handle_type = void*;
+
+  inline native_handle_type native_handle();
 
  protected:
   FiberQueue _queue;

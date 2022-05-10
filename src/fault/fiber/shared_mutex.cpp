@@ -62,4 +62,8 @@ void SharedMutex::SharedLockHelper() {
   _exclusive_mode = false;
   _shared_owners_count++;
 }
+
+SharedMutex::native_handle_type SharedMutex::native_handle() {
+  return nullptr;
+}
 }  // namespace yaclib::detail::fiber

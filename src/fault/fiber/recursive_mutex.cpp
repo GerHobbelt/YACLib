@@ -28,4 +28,8 @@ void RecursiveMutex::LockHelper() {
   _occupied_count++;
   _owner_id = fault::Scheduler::GetId();
 }
+
+RecursiveMutex::native_handle_type RecursiveMutex::native_handle() {
+  return nullptr;
+}
 }  // namespace yaclib::detail::fiber

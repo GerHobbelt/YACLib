@@ -24,11 +24,7 @@ class ConditionVariable {
   template <typename Predicate>
   void wait(std::unique_lock<yaclib::detail::fiber::Mutex>& lock, Predicate predicate) {
     while (!predicate()) {
-      GetInjector()->SetPauseInject(true);
-      lock.unlock();
-      _queue.Wait();
-      lock.lock();
-      GetInjector()->SetPauseInject(false);
+      wait(lock);
     }
   }
 
@@ -46,11 +42,7 @@ class ConditionVariable {
   template <typename Clock, typename Duration, typename Predicate>
   bool wait_until(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                   const std::chrono::time_point<Clock, Duration>& time_point, Predicate predicate) {
-    GetInjector()->SetPauseInject(true);
-    lock.unlock();
-    _queue.Wait(time_point);
-    lock.lock();
-    GetInjector()->SetPauseInject(false);
+    wait_until(lock, time_point);
     return predicate();
   }
 
@@ -68,11 +60,7 @@ class ConditionVariable {
   template <typename Rep, typename Period, typename Predicate>
   bool wait_for(std::unique_lock<yaclib::detail::fiber::Mutex>& lock,
                 const std::chrono::duration<Rep, Period>& duration, Predicate predicate) {
-    GetInjector()->SetPauseInject(true);
-    lock.unlock();
-    _queue.Wait(duration);
-    lock.lock();
-    GetInjector()->SetPauseInject(false);
+    wait_for(lock, duration);
     return predicate();
   }
 

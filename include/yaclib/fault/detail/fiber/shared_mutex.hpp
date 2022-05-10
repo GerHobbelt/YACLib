@@ -21,6 +21,10 @@ class SharedMutex {
 
   void unlock_shared();
 
+  using native_handle_type = void*;
+
+  inline native_handle_type native_handle();
+
  protected:
   void LockHelper();
   void SharedLockHelper();
