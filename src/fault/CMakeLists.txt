@@ -64,6 +64,7 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/execution_context.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/thread.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/bidirectional_intrusive_list.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/thread_local_proxy.hpp
     )
   list(APPEND YACLIB_SOURCES
     # chrono

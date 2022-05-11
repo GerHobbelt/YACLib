@@ -81,4 +81,12 @@ bool Fiber::IsThreadlikeInstanceAlive() const {
   return _threadlike_instance_alive;
 }
 
+void* Fiber::GetTls(uint64_t name, void* _default) {
+  return _tls[name] == nullptr ? _default : _tls[name];
+}
+
+void Fiber::SetTls(uint64_t name, void* value) {
+  _tls[name] = value;
+}
+
 }  // namespace yaclib::detail::fiber

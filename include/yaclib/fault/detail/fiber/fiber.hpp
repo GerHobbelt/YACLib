@@ -7,6 +7,8 @@
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
 #include <yaclib/util/detail/shared_func.hpp>
 
+#include <unordered_map>
+
 namespace yaclib::detail::fiber {
 
 using Routine = yaclib::IFuncPtr;
@@ -47,6 +49,10 @@ class Fiber : public BiNodeSleep, public BiNodeWaitQueue {
 
   [[nodiscard]] bool IsThreadlikeInstanceAlive() const;
 
+  void* GetTls(uint64_t name, void* _default);
+
+  void SetTls(uint64_t name, void* value);
+
  private:
   [[noreturn]] static void Trampoline(void* arg);
 
@@ -61,6 +67,7 @@ class Fiber : public BiNodeSleep, public BiNodeWaitQueue {
   Id _id;
   FiberState _state{Suspended};
   bool _threadlike_instance_alive{true};
+  std::unordered_map<uint64_t, void*> _tls;
 };
 
 }  // namespace yaclib::detail::fiber
