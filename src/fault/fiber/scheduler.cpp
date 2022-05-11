@@ -109,7 +109,9 @@ void Scheduler::RunLoop() {
 }
 
 void Scheduler::RescheduleCurrent() {
-  YACLIB_DEBUG(current == nullptr, "Current can't be null");
+  if (current == nullptr) {
+    return;
+  }
   auto* fiber = current;
   GetScheduler()->_queue.push_back(fiber);
   fiber->Yield();

@@ -1,4 +1,6 @@
 #include <yaclib/fault/detail/fiber/fiber.hpp>
+#include <yaclib/fault/inject.hpp>
+#include <yaclib/fault/injector.hpp>
 
 #include <utility>
 
@@ -40,7 +42,9 @@ void Fiber::Yield() {
 void Fiber::Complete() {
   _state = Completed;
   if (_complete_callback != nullptr && _threadlike_instance_alive) {
+    GetInjector()->SetPauseInject(true);
     _complete_callback->Call();
+    GetInjector()->SetPauseInject(false);
   }
   _context.SwitchTo(_caller_context);
 }

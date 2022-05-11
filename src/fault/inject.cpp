@@ -4,7 +4,7 @@
 namespace yaclib {
 
 detail::Injector* GetInjector() noexcept {
-  thread_local static detail::Injector instance;
+  static detail::Injector instance;
   return &instance;
 }
 
