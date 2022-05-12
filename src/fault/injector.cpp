@@ -18,7 +18,11 @@ Injector::Injector() : _count{0} {
 
 void Injector::MaybeInject() {
   if (NeedInject()) {
+#if YACLIB_FAULT == 2
+    yaclib_std::this_thread::yield();
+#else
     yaclib_std::this_thread::sleep_for(std::chrono::nanoseconds(1 + GetRandNumber(sleep_time - 1)));
+#endif
   }
 }
 
