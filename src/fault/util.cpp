@@ -6,7 +6,7 @@ inline constexpr int kSeed = 1239;
 
 static std::atomic_uint32_t seed = kSeed;
 
-//TODO(myannyax): make not thread_static
+// TODO(myannyax): make not thread_static
 thread_local static std::mt19937_64 eng(seed.load());
 
 void SetSeed(uint32_t new_seed) {
