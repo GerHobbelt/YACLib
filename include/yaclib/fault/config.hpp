@@ -29,7 +29,7 @@ void SetFaultSleepTime(std::uint32_t ns);
 void SetFaultTickLength(std::uint32_t ns);
 
 /**
- * Sets the length of scheduler queue prefix from which the next schedule candidate will be chosen.
+ * Sets the length of scheduler queue prefix and suffix from which the next schedule candidate will be chosen.
  * Default 0 meaning the candidate will be chosen randomly from the whole queue.
  */
 void SetFaultRandomListPick(std::uint32_t k);
