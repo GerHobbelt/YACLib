@@ -1,7 +1,7 @@
 #pragma once
 #include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
-#include <yaclib/fault/detail/fiber/system_clock.hpp>
+#include <yaclib/fault/detail/fiber/steady_clock.hpp>
 
 #include <vector>
 
@@ -19,9 +19,7 @@ class FiberQueue {
 
   template <typename Rep, typename Period>
   bool Wait(const std::chrono::duration<Rep, Period>& duration) {
-    auto now = SystemClock::now();
-    auto time_point = now + duration;
-    return Wait(time_point);
+    return Wait(duration + SteadyClock::now());
   }
 
   template <typename Clock, typename Duration>
@@ -30,7 +28,7 @@ class FiberQueue {
     auto* queue_node = static_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
     auto* scheduler = fault::Scheduler::GetScheduler();
-    auto time = scheduler->SleepUntil(time_point);
+    auto time = scheduler->Sleep(time_point.time_since_epoch().count());
     if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
       scheduler->_sleep_list[time].Erase(static_cast<BiNodeSleep*>(fiber));
       if (scheduler->_sleep_list[time].Empty()) {

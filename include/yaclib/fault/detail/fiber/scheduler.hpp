@@ -27,26 +27,7 @@ class Scheduler {
 
   [[nodiscard]] bool IsRunning() const;
 
-  template <typename Clock, typename Duration>
-  auto SleepUntil(const std::chrono::time_point<Clock, Duration>& sleep_time) {
-    std::chrono::time_point<Clock, Duration> now = Clock::now();
-    Duration duration = sleep_time - now;
-    return SleepFor(duration);
-  }
-
-  template <typename Rep, typename Period>
-  auto SleepFor(const std::chrono::duration<Rep, Period>& sleep_duration) {
-    uint64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(sleep_duration).count();
-    if (ns <= 0) {
-      return ns;
-    }
-    auto time = GetTimeNs() + ns;
-    auto* current_fiber = Current();
-    detail::fiber::BiList& sleep_list = _sleep_list[GetTimeNs() + ns];
-    sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(current_fiber));
-    Suspend();
-    return time;
-  }
+  uint64_t Sleep(uint64_t ns);
 
   [[nodiscard]] uint64_t GetTimeNs() const;
 

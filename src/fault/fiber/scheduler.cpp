@@ -128,15 +128,26 @@ void Scheduler::SetTickLength(uint32_t tick) {
 void Scheduler::SetRandomListPick(uint32_t k) {
   _random_list_pick = k;
 }
+
+uint64_t Scheduler::Sleep(uint64_t ns) {
+  if (ns <= GetTimeNs()) {
+    return ns;
+  }
+  detail::fiber::BiList& sleep_list = _sleep_list[ns];
+  sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(current));
+  Suspend();
+  return ns;
+}
 }  // namespace yaclib::fault
 
 namespace yaclib::detail::fiber {
 
 BiNode* PollRandomElementFromList(BiList& list) {
-  auto limit = fault::_random_list_pick != 0 ? std::min<std::size_t>(fault::_random_list_pick, list.GetSize()) : list.GetSize();
+  auto limit =
+    fault::_random_list_pick != 0 ? std::min<std::size_t>(fault::_random_list_pick, list.GetSize()) : list.GetSize();
   auto rand_pos = detail::GetRandNumber(limit);
   if (fault::_random_list_pick != 0) {
-    if (detail::GetRandNumber(2)) {
+    if (detail::GetRandNumber(2) != 0u) {
       rand_pos = list.GetSize() - rand_pos - 1;
     }
   }
