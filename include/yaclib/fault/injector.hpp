@@ -27,7 +27,7 @@ class Injector {
   static std::atomic_uint32_t yield_frequency;
   static std::atomic_uint32_t sleep_time;
 
-  uint32_t _count;
+  std::atomic_uint32_t _count;
   bool _pause;
 };
 

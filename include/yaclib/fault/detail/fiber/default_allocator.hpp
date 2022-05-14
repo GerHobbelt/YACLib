@@ -21,7 +21,7 @@ class DefaultAllocator final : public IStackAllocator {
   size_t GetMinStackSize() final;
 
  private:
-  size_t _stack_size_pages{4};
+  size_t _stack_size_pages{6};
   std::vector<Allocation> _pool;
 };
 
