@@ -34,4 +34,10 @@ void SetFaultTickLength(std::uint32_t ns);
  */
 void SetFaultRandomListPick(std::uint32_t k);
 
+/**
+ * Sets fiber stack size for fault injection in pages.
+ * Default is 4.
+ */
+void SetFaultFiberStackSize(std::uint32_t pages);
+
 }  // namespace yaclib

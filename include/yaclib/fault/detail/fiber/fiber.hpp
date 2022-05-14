@@ -33,8 +33,6 @@ class Fiber : public BiNodeSleep, public BiNodeWaitQueue, public BiNodeScheduleQ
 
   Fiber& operator=(Fiber&& other) noexcept = default;
 
-  Fiber(IStackAllocator& allocator, Routine routine);
-
   explicit Fiber(Routine routine);
 
   void SetCompleteCallback(Routine routine);
@@ -55,6 +53,8 @@ class Fiber : public BiNodeSleep, public BiNodeWaitQueue, public BiNodeScheduleQ
 
   void SetTls(uint64_t name, void* value);
 
+  static IStackAllocator& GetAllocator();
+
  private:
   [[noreturn]] static void Trampoline(void* arg);
 
@@ -70,6 +70,7 @@ class Fiber : public BiNodeSleep, public BiNodeWaitQueue, public BiNodeScheduleQ
   FiberState _state{Suspended};
   bool _threadlike_instance_alive{true};
   std::unordered_map<uint64_t, void*> _tls;
+  static DefaultAllocator _allocator;
 };
 
 }  // namespace yaclib::detail::fiber

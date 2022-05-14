@@ -32,4 +32,10 @@ void SetFaultRandomListPick(std::uint32_t k) {
 #endif
 }
 
+void SetFaultFiberStackSize(std::uint32_t pages) {
+#if YACLIB_FAULT == 2
+  yaclib::detail::fiber::Fiber::GetAllocator().SetMinStackSize(pages);
+#endif
+}
+
 }  // namespace yaclib
