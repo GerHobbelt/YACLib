@@ -36,19 +36,19 @@ class Scheduler {
 
   template <typename Rep, typename Period>
   auto SleepFor(const std::chrono::duration<Rep, Period>& sleep_duration) {
-    uint64_t us = std::chrono::duration_cast<std::chrono::microseconds>(sleep_duration).count();
-    if (us <= 0) {
-      return us;
+    uint64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(sleep_duration).count();
+    if (ns <= 0) {
+      return ns;
     }
-    auto time = GetTimeUs() + us;
+    auto time = GetTimeNs() + ns;
     auto* current_fiber = Current();
-    detail::fiber::BiList& sleep_list = _sleep_list[GetTimeUs() + us];
+    detail::fiber::BiList& sleep_list = _sleep_list[GetTimeNs() + ns];
     sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(current_fiber));
     Suspend();
     return time;
   }
 
-  [[nodiscard]] uint64_t GetTimeUs() const;
+  [[nodiscard]] uint64_t GetTimeNs() const;
 
   static detail::fiber::Fiber* Current();
 

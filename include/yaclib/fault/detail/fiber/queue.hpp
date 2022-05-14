@@ -1,6 +1,7 @@
 #pragma once
 #include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
+#include <yaclib/fault/detail/fiber/system_clock.hpp>
 
 #include <vector>
 
@@ -18,11 +19,18 @@ class FiberQueue {
 
   template <typename Rep, typename Period>
   bool Wait(const std::chrono::duration<Rep, Period>& duration) {
+    auto now = SystemClock::now();
+    auto time_point = now + duration;
+    return Wait(time_point);
+  }
+
+  template <typename Clock, typename Duration>
+  bool Wait(const std::chrono::time_point<Clock, Duration>& time_point) {
     auto* fiber = fault::Scheduler::Current();
     auto* queue_node = static_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
     auto* scheduler = fault::Scheduler::GetScheduler();
-    auto time = scheduler->SleepFor(duration);
+    auto time = scheduler->SleepUntil(time_point);
     if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
       scheduler->_sleep_list[time].Erase(static_cast<BiNodeSleep*>(fiber));
       if (scheduler->_sleep_list[time].Empty()) {
@@ -31,13 +39,6 @@ class FiberQueue {
     }
     bool res = _queue.Erase(queue_node);
     return res;
-  }
-
-  template <typename Clock, typename Duration>
-  bool Wait(const std::chrono::time_point<Clock, Duration>& time_point) {
-    std::chrono::time_point<Clock, Duration> now = Clock::now();
-    Duration duration = time_point - now;
-    return Wait(duration);
   }
 
   void NotifyAll();

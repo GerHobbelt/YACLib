@@ -2,11 +2,12 @@
 
 #if YACLIB_FAULT_CLOCK == 2
 
+#  include <yaclib/fault/detail/fiber/steady_clock.hpp>
 #  include <yaclib/fault/detail/fiber/system_clock.hpp>
 
 namespace yaclib_std::chrono {
 
-using steady_clock = yaclib::detail::fiber::SystemClock;
+using steady_clock = yaclib::detail::fiber::SteadyClock;
 
 using high_resolution_clock = yaclib::detail::fiber::SystemClock;
 

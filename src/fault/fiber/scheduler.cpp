@@ -69,7 +69,7 @@ void Scheduler::AdvanceTime() {
   }
 }
 
-uint64_t Scheduler::GetTimeUs() const {
+uint64_t Scheduler::GetTimeNs() const {
   return _time;
 }
 
