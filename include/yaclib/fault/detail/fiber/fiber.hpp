@@ -17,13 +17,15 @@ class BiNodeSleep : public BiNode {};
 
 class BiNodeWaitQueue : public BiNode {};
 
+class BiNodeScheduleQueue : public BiNode {};
+
 enum FiberState {
   Running,
   Suspended,
   Completed,
 };
 
-class Fiber : public BiNodeSleep, public BiNodeWaitQueue {
+class Fiber : public BiNodeSleep, public BiNodeWaitQueue, public BiNodeScheduleQueue {
  public:
   using Id = uint64_t;
 

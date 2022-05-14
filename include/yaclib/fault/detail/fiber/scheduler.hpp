@@ -9,10 +9,7 @@
 #include <yaclib/util/func.hpp>
 
 #include <chrono>
-#include <list>
 #include <map>
-#include <random>
-#include <vector>
 
 namespace yaclib::detail::fiber {
 class FiberQueue;
@@ -46,7 +43,7 @@ class Scheduler {
     auto time = GetTimeUs() + us;
     auto* current_fiber = Current();
     detail::fiber::BiList& sleep_list = _sleep_list[GetTimeUs() + us];
-    sleep_list.PushBack(dynamic_cast<detail::fiber::BiNodeSleep*>(current_fiber));
+    sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(current_fiber));
     Suspend();
     return time;
   }
@@ -79,7 +76,7 @@ class Scheduler {
   void WakeUpNeeded();
 
   uint64_t _time;
-  std::vector<detail::fiber::Fiber*> _queue;
+  detail::fiber::BiList _queue;
   std::map<uint64_t, detail::fiber::BiList> _sleep_list;
   bool _running;
 };
@@ -87,7 +84,5 @@ class Scheduler {
 }  // namespace yaclib::fault
 
 namespace yaclib::detail::fiber {
-Fiber* PollRandomElementFromList(std::vector<Fiber*>& list);
-
 BiNode* PollRandomElementFromList(BiList& list);
 }  // namespace yaclib::detail::fiber

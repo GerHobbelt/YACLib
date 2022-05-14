@@ -19,12 +19,12 @@ class FiberQueue {
   template <typename Rep, typename Period>
   bool Wait(const std::chrono::duration<Rep, Period>& duration) {
     auto* fiber = fault::Scheduler::Current();
-    auto* queue_node = dynamic_cast<BiNodeWaitQueue*>(fiber);
+    auto* queue_node = static_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
     auto* scheduler = fault::Scheduler::GetScheduler();
     auto time = scheduler->SleepFor(duration);
     if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
-      scheduler->_sleep_list[time].Erase(dynamic_cast<BiNodeSleep*>(fiber));
+      scheduler->_sleep_list[time].Erase(static_cast<BiNodeSleep*>(fiber));
       if (scheduler->_sleep_list[time].Empty()) {
         scheduler->_sleep_list.erase(time);
       }

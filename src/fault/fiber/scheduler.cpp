@@ -11,9 +11,9 @@ Scheduler* current_scheduler = nullptr;
 static thread_local detail::fiber::Fiber* current;
 
 detail::fiber::Fiber* Scheduler::GetNext() {
-  YACLIB_DEBUG(_queue.empty(), "Queue can't be empty");
+  YACLIB_DEBUG(_queue.Empty(), "Queue can't be empty");
   auto* next = PollRandomElementFromList(_queue);
-  return next;
+  return static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeScheduleQueue*>(next));
 }
 
 bool Scheduler::IsRunning() const {
@@ -41,7 +41,7 @@ void Scheduler::Set(Scheduler* scheduler) {
 
 void Scheduler::Schedule(detail::fiber::Fiber* fiber) {
   InjectFault();
-  _queue.push_back(fiber);
+  _queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(fiber));
   if (!IsRunning()) {
     _running = true;
     RunLoop();
@@ -81,8 +81,8 @@ void Scheduler::WakeUpNeeded() {
       break;
     }
     while (!elem.second.Empty()) {
-      _queue.push_back(
-        static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeSleep*>(elem.second.PopBack())));
+      _queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(
+        static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeSleep*>(elem.second.PopBack()))));
     }
   }
   if (iter_to_remove != _sleep_list.begin()) {
@@ -91,12 +91,12 @@ void Scheduler::WakeUpNeeded() {
 }
 
 void Scheduler::RunLoop() {
-  while (!_queue.empty() || !_sleep_list.empty()) {
-    if (_queue.empty()) {
+  while (!_queue.Empty() || !_sleep_list.empty()) {
+    if (_queue.Empty()) {
       AdvanceTime();
     }
     WakeUpNeeded();
-    YACLIB_INFO(_queue.empty(), "Potentially deadlock");
+    YACLIB_INFO(_queue.Empty(), "Potentially deadlock");
     auto* next = GetNext();
     current = next;
     TickTime();
@@ -113,7 +113,7 @@ void Scheduler::RescheduleCurrent() {
     return;
   }
   auto* fiber = current;
-  GetScheduler()->_queue.push_back(fiber);
+  GetScheduler()->_queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(fiber));
   fiber->Yield();
 }
 
@@ -122,12 +122,6 @@ Scheduler::Scheduler() : _running(false), _time(0) {
 }  // namespace yaclib::fault
 
 namespace yaclib::detail::fiber {
-Fiber* PollRandomElementFromList(std::vector<Fiber*>& list) {
-  auto rand_pos = detail::GetRandNumber(list.size());
-  auto* next = list[rand_pos];
-  list.erase(list.begin() + rand_pos);
-  return next;
-}
 
 BiNode* PollRandomElementFromList(BiList& list) {
   auto rand_pos = detail::GetRandNumber(list.GetSize());
