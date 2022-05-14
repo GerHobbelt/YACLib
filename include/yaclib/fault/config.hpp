@@ -22,4 +22,16 @@ void SetSeed(std::uint32_t seed);
  */
 void SetFaultSleepTime(std::uint32_t ns);
 
+/**
+ * Sets the amount of time to be added to fiber's scheduler time after each schedule cycle.
+ * Default is 10
+ */
+void SetFaultTickLength(std::uint32_t ns);
+
+/**
+ * Sets the length of scheduler queue prefix from which the next schedule candidate will be chosen.
+ * Default 0 meaning the candidate will be chosen randomly from the whole queue.
+ */
+void SetFaultRandomListPick(std::uint32_t k);
+
 }  // namespace yaclib

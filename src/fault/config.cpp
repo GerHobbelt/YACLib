@@ -2,6 +2,9 @@
 
 #include <yaclib/fault/config.hpp>
 #include <yaclib/fault/injector.hpp>
+#if YACLIB_FAULT == 2
+#  include <yaclib/fault/detail/fiber/scheduler.hpp>
+#endif
 
 namespace yaclib {
 
@@ -14,8 +17,18 @@ void SetFaultSleepTime(std::uint32_t ns) {
 }
 
 void SetSeed(std::uint32_t seed) {
-#ifdef YACLIB_FAULT
   detail::SetSeed(seed);
+}
+
+void SetFaultTickLength(std::uint32_t ns) {
+#if YACLIB_FAULT == 2
+  fault::Scheduler::SetTickLength(ns);
+#endif
+}
+
+void SetFaultRandomListPick(std::uint32_t k) {
+#if YACLIB_FAULT == 2
+  fault::Scheduler::SetRandomListPick(k);
 #endif
 }
 

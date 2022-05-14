@@ -56,6 +56,10 @@ class Scheduler {
 
   static void RescheduleCurrent();
 
+  static void SetTickLength(uint32_t tick);
+
+  static void SetRandomListPick(uint32_t k);
+
   void Stop();
 
   static Scheduler* GetScheduler();

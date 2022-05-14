@@ -8,13 +8,14 @@
 #endif
 
 #include <cstdio>
+#include <random>
 #include <yaclib_std/thread>
 
 #include <gtest/gtest.h>
 
 namespace test {
 
-const int seed = 1239;
+const unsigned int seed = std::random_device().operator()();
 
 class MyTestListener : public ::testing::EmptyTestEventListener {
  public:
@@ -36,6 +37,8 @@ void InitLog() noexcept {
 void InitFault() {
   yaclib::SetFaultFrequency(8);
   yaclib::SetFaultSleepTime(200);
+  yaclib::SetFaultRandomListPick(5);
+  yaclib::SetFaultTickLength(10);
 }
 
 namespace {
@@ -63,6 +66,7 @@ int main(int argc, char** argv) {
   int result = 0;
 #if YACLIB_FAULT == 2
   ::testing::UnitTest::GetInstance()->listeners().Append(new test::MyTestListener());
+  std::cerr << "seed: " << test::seed << "\n";
   yaclib::fault::Scheduler scheduler;
   yaclib::fault::Scheduler::Set(&scheduler);
   yaclib_std::thread tests([&]() {

@@ -10,6 +10,9 @@ Scheduler* current_scheduler = nullptr;
 
 static thread_local detail::fiber::Fiber* current;
 
+static uint32_t _tick_length = 10;
+static uint32_t _random_list_pick = 0;
+
 detail::fiber::Fiber* Scheduler::GetNext() {
   YACLIB_DEBUG(_queue.Empty(), "Queue can't be empty");
   auto* next = PollRandomElementFromList(_queue);
@@ -21,7 +24,6 @@ bool Scheduler::IsRunning() const {
 }
 
 void Scheduler::Suspend() {
-  YACLIB_DEBUG(current == nullptr, "Current can't be null");
   auto* fiber = current;
   fiber->Yield();
 }
@@ -59,7 +61,7 @@ detail::fiber::Fiber::Id Scheduler::GetId() {
 }
 
 void Scheduler::TickTime() {
-  _time += 10;
+  _time += _tick_length;
 }
 
 void Scheduler::AdvanceTime() {
@@ -96,7 +98,6 @@ void Scheduler::RunLoop() {
       AdvanceTime();
     }
     WakeUpNeeded();
-    YACLIB_INFO(_queue.Empty(), "Potentially deadlock");
     auto* next = GetNext();
     current = next;
     TickTime();
@@ -119,12 +120,26 @@ void Scheduler::RescheduleCurrent() {
 
 Scheduler::Scheduler() : _running(false), _time(0) {
 }
+
+void Scheduler::SetTickLength(uint32_t tick) {
+  _tick_length = tick;
+}
+
+void Scheduler::SetRandomListPick(uint32_t k) {
+  _random_list_pick = k;
+}
 }  // namespace yaclib::fault
 
 namespace yaclib::detail::fiber {
 
 BiNode* PollRandomElementFromList(BiList& list) {
-  auto rand_pos = detail::GetRandNumber(list.GetSize());
+  auto limit = fault::_random_list_pick != 0 ? std::min<std::size_t>(fault::_random_list_pick, list.GetSize()) : list.GetSize();
+  auto rand_pos = detail::GetRandNumber(limit);
+  if (fault::_random_list_pick != 0) {
+    if (detail::GetRandNumber(2)) {
+      rand_pos = list.GetSize() - rand_pos - 1;
+    }
+  }
   auto* next = list.GetNth(rand_pos);
   list.Erase(next);
   return next;
