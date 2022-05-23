@@ -5,6 +5,11 @@
 namespace yaclib::detail::fiber {
 
 void BiList::PushBack(BiNode* node) noexcept {
+  if (node->prev != nullptr && node->prev != node) {
+    this->Erase(node);
+    _size++;
+  }
+  YACLIB_DEBUG(node->prev != nullptr && node->prev != node, "pushed and not popped");
   _size++;
   node->next = &_head;
   _head.prev->next = node;
@@ -68,6 +73,23 @@ BiList& BiList::operator=(BiList&& other) noexcept {
   _head.prev = std::exchange(other._head.prev, &other._head);
   _head.next->prev = &_head;
   _head.prev->next = &_head;
+  _size = std::exchange(other._size, 0);
   return *this;
+}
+
+void BiList::PushAll(BiList& other) noexcept {
+  if (this == &other || other.Empty()) {
+    return;
+  }
+  _head.prev->next = std::exchange(other._head.next, &other._head);
+  _head.prev->next->prev = _head.prev;
+  _head.prev = std::exchange(other._head.prev, &other._head);
+  _head.prev->next = &_head;
+  _size += other._size;
+  other._size = 0;
+}
+
+void BiList::DecSize() noexcept {
+  --_size;
 }
 }  // namespace yaclib::detail::fiber

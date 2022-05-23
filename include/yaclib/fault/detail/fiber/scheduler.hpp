@@ -48,7 +48,6 @@ class Scheduler {
   static void Suspend();
 
  private:
-
   void AdvanceTime();
 
   void TickTime();

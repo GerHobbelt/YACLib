@@ -16,7 +16,7 @@ static uint32_t _random_list_pick = 0;
 detail::fiber::Fiber* Scheduler::GetNext() {
   YACLIB_DEBUG(_queue.Empty(), "Queue can't be empty");
   auto* next = PollRandomElementFromList(_queue);
-  return static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeScheduleQueue*>(next));
+  return static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeScheduler*>(next));
 }
 
 bool Scheduler::IsRunning() const {
@@ -43,7 +43,7 @@ void Scheduler::Set(Scheduler* scheduler) {
 
 void Scheduler::Schedule(detail::fiber::Fiber* fiber) {
   InjectFault();
-  _queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(fiber));
+  _queue.PushBack(static_cast<detail::fiber::BiNodeScheduler*>(fiber));
   if (!IsRunning()) {
     _running = true;
     RunLoop();
@@ -82,10 +82,7 @@ void Scheduler::WakeUpNeeded() {
       iter_to_remove = _sleep_list.find(elem.first);
       break;
     }
-    while (!elem.second.Empty()) {
-      _queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(
-        static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeSleep*>(elem.second.PopBack()))));
-    }
+    _queue.PushAll(elem.second);
   }
   if (iter_to_remove != _sleep_list.begin()) {
     _sleep_list.erase(_sleep_list.begin(), iter_to_remove);
@@ -114,7 +111,7 @@ void Scheduler::RescheduleCurrent() {
     return;
   }
   auto* fiber = current;
-  GetScheduler()->_queue.PushBack(static_cast<detail::fiber::BiNodeScheduleQueue*>(fiber));
+  GetScheduler()->_queue.PushBack(static_cast<detail::fiber::BiNodeScheduler*>(fiber));
   fiber->Yield();
 }
 
@@ -135,10 +132,10 @@ void Scheduler::Sleep(uint64_t ns) {
   }
   detail::fiber::BiList& sleep_list = _sleep_list[ns];
   auto* fiber = current;
-  sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(fiber));
+  sleep_list.PushBack(static_cast<detail::fiber::BiNodeScheduler*>(fiber));
   Suspend();
   if (_sleep_list.find(ns) != _sleep_list.end()) {
-    _sleep_list[ns].Erase(static_cast<detail::fiber::BiNodeSleep*>(fiber));
+    _sleep_list[ns].DecSize();
     if (_sleep_list[ns].Empty()) {
       _sleep_list.erase(ns);
     }

@@ -21,6 +21,8 @@ class BiList final {
 
   void PushBack(BiNode* node) noexcept;
 
+  void PushAll(BiList& other) noexcept;
+
   BiNode* PopBack();
 
   [[nodiscard]] bool Empty() const noexcept;
@@ -28,6 +30,8 @@ class BiList final {
   bool Erase(BiNode* node) noexcept;
 
   [[nodiscard]] std::size_t GetSize() const noexcept;
+
+  void DecSize() noexcept;
 
   [[nodiscard]] BiNode* GetNth(std::size_t ind) const noexcept;
 

@@ -13,11 +13,9 @@ namespace yaclib::detail::fiber {
 
 using Routine = yaclib::IFuncPtr;
 
-class BiNodeSleep : public BiNode {};
+class BiNodeScheduler : public BiNode {};
 
 class BiNodeWaitQueue : public BiNode {};
-
-class BiNodeScheduleQueue : public BiNode {};
 
 enum FiberState {
   Running,
@@ -25,7 +23,7 @@ enum FiberState {
   Completed,
 };
 
-class Fiber : public BiNodeSleep, public BiNodeWaitQueue, public BiNodeScheduleQueue {
+class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
  public:
   using Id = uint64_t;
 
