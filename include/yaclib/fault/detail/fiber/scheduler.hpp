@@ -19,15 +19,13 @@ namespace yaclib::fault {
 
 class Scheduler {
  public:
-  friend class detail::fiber::FiberQueue;
-
   Scheduler();
 
   void Schedule(detail::fiber::Fiber* fiber);
 
   [[nodiscard]] bool IsRunning() const;
 
-  uint64_t Sleep(uint64_t ns);
+  void Sleep(uint64_t ns);
 
   [[nodiscard]] uint64_t GetTimeNs() const;
 
@@ -47,8 +45,9 @@ class Scheduler {
 
   static void Set(Scheduler* scheduler);
 
- private:
   static void Suspend();
+
+ private:
 
   void AdvanceTime();
 

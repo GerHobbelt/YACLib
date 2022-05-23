@@ -129,14 +129,20 @@ void Scheduler::SetRandomListPick(uint32_t k) {
   _random_list_pick = k;
 }
 
-uint64_t Scheduler::Sleep(uint64_t ns) {
+void Scheduler::Sleep(uint64_t ns) {
   if (ns <= GetTimeNs()) {
-    return ns;
+    return;
   }
   detail::fiber::BiList& sleep_list = _sleep_list[ns];
-  sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(current));
+  auto* fiber = current;
+  sleep_list.PushBack(static_cast<detail::fiber::BiNodeSleep*>(fiber));
   Suspend();
-  return ns;
+  if (_sleep_list.find(ns) != _sleep_list.end()) {
+    _sleep_list[ns].Erase(static_cast<detail::fiber::BiNodeSleep*>(fiber));
+    if (_sleep_list[ns].Empty()) {
+      _sleep_list.erase(ns);
+    }
+  }
 }
 }  // namespace yaclib::fault
 

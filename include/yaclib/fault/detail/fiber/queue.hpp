@@ -28,13 +28,7 @@ class FiberQueue {
     auto* queue_node = static_cast<BiNodeWaitQueue*>(fiber);
     _queue.PushBack(queue_node);
     auto* scheduler = fault::Scheduler::GetScheduler();
-    auto time = scheduler->Sleep(time_point.time_since_epoch().count());
-    if (scheduler->_sleep_list.find(time) != scheduler->_sleep_list.end()) {
-      scheduler->_sleep_list[time].Erase(static_cast<BiNodeSleep*>(fiber));
-      if (scheduler->_sleep_list[time].Empty()) {
-        scheduler->_sleep_list.erase(time);
-      }
-    }
+    scheduler->Sleep(time_point.time_since_epoch().count());
     bool res = _queue.Erase(queue_node);
     return res;
   }
