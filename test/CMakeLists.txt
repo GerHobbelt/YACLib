@@ -70,6 +70,7 @@ endif ()
 if (YACLIB_FAULT STREQUAL "FIBER")
   list(APPEND YACLIB_UNIT_SOURCES
     unit/fault/mutexes
+    unit/fault/thread_local
     )
 endif ()
 
