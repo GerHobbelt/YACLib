@@ -7,6 +7,8 @@ namespace yaclib::detail::fiber {
 
 static const uint32_t kPageSize = sysconf(_SC_PAGESIZE);
 
+static uint32_t cache_size = 100;
+
 Allocation DefaultAllocator::Allocate() {
   if (!_pool.empty()) {
     auto allocation = _pool.back();
@@ -25,7 +27,7 @@ Allocation DefaultAllocator::Allocate() {
 }
 
 void DefaultAllocator::Release(Allocation allocation) {
-  if (allocation.size == _stack_size_pages * kPageSize) {
+  if (_pool.size() < cache_size) {
     _pool.push_back(allocation);
   } else {
     if (allocation.start == nullptr) {
@@ -49,6 +51,10 @@ void DefaultAllocator::SetMinStackSize(size_t pages) {
 
 size_t DefaultAllocator::GetMinStackSize() {
   return _stack_size_pages;
+}
+
+void DefaultAllocator::SetCacheSize(uint32_t size) {
+  cache_size = size;
 }
 
 }  // namespace yaclib::detail::fiber

@@ -1,6 +1,6 @@
+#include <vector>
 #include <yaclib_std/thread>
 #include <yaclib_std/thread_local>
-#include <vector>
 
 #include <gtest/gtest.h>
 

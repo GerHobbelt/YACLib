@@ -20,6 +20,8 @@ class DefaultAllocator final : public IStackAllocator {
 
   size_t GetMinStackSize() final;
 
+  static void SetCacheSize(uint32_t size);
+
  private:
   size_t _stack_size_pages{6};
   std::vector<Allocation> _pool;

@@ -3,6 +3,8 @@
 
 namespace yaclib::detail::fiber {
 
+static unsigned int fiber_hardware_concurrency{std::thread::hardware_concurrency()};
+
 using namespace std::chrono_literals;
 
 Thread::Thread() noexcept = default;
@@ -46,7 +48,7 @@ Thread::native_handle_type Thread::native_handle() noexcept {
 }
 
 unsigned int Thread::hardware_concurrency() noexcept {
-  return std::thread::hardware_concurrency();
+  return fiber_hardware_concurrency;
 }
 
 Thread::~Thread() {
@@ -85,6 +87,10 @@ void Thread::AfterJoinOrDetach() {
     delete _impl;
   }
   _impl = nullptr;
+}
+
+void Thread::SetHardwareConcurrency(unsigned int h_c) noexcept {
+  fiber_hardware_concurrency = h_c;
 }
 
 }  // namespace yaclib::detail::fiber

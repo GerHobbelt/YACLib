@@ -40,4 +40,16 @@ void SetFaultRandomListPick(std::uint32_t k);
  */
 void SetFaultFiberStackSize(std::uint32_t pages);
 
+/**
+ * Sets fiber stack cache size for fault injection.
+ * Default is 100.
+ */
+void SetFaultFiberStackCacheSize(std::uint32_t c);
+
+/**
+ * Sets hardware_concurrency in fiber based execution.
+ * Default equals to std::thread::hardware_concurrency.
+ */
+void SetFaultHardwareConcurrency(std::uint32_t c);
+
 }  // namespace yaclib

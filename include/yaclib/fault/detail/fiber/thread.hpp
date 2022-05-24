@@ -46,6 +46,8 @@ class Thread {
 
   static unsigned int hardware_concurrency() noexcept;
 
+  static void SetHardwareConcurrency(unsigned int h_c) noexcept;
+
  private:
   void AfterJoinOrDetach();
 
