@@ -8,9 +8,9 @@ namespace yaclib::detail::fiber {
 
 static Fiber::Id next_id{1L};
 
-DefaultAllocator Fiber::_allocator{};
+DefaultAllocator Fiber::allocator{};
 
-Fiber::Fiber(Routine routine) : _id(next_id++), _stack(_allocator), _routine(std::move(routine)) {
+Fiber::Fiber(Routine routine) : _id(next_id++), _stack(allocator), _routine(std::move(routine)) {
   _context.Setup(_stack.GetAllocation(), Trampoline, this);
 }
 
@@ -91,7 +91,7 @@ void Fiber::SetTls(uint64_t name, void* value) {
 }
 
 IStackAllocator& Fiber::GetAllocator() {
-  return _allocator;
+  return allocator;
 }
 
 }  // namespace yaclib::detail::fiber

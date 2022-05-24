@@ -68,7 +68,7 @@ class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
   FiberState _state{Suspended};
   bool _threadlike_instance_alive{true};
   std::unordered_map<uint64_t, void*> _tls;
-  static DefaultAllocator _allocator;
+  static DefaultAllocator allocator;
 };
 
 }  // namespace yaclib::detail::fiber

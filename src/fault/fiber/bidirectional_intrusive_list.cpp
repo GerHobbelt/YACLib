@@ -55,12 +55,22 @@ std::size_t BiList::GetSize() const noexcept {
 }
 
 BiNode* BiList::GetNth(std::size_t ind) const noexcept {
-  YACLIB_DEBUG(ind >= _size, "ind for BiList::GetNth is out of bounds");
-  std::size_t indd = 0;
-  BiNode* node = _head.next;
-  while (indd < ind) {
-    node = node->next;
-    indd++;
+  std::size_t i = (ind + _size) % _size;
+  BiNode* node;
+  if (i < _size / 2) {
+    std::size_t current_i = 0;
+    node = _head.next;
+    while (current_i < i) {
+      node = node->next;
+      current_i++;
+    }
+  } else {
+    std::size_t current_i = _size - 1;
+    node = _head.prev;
+    while (current_i > 0) {
+      node = node->prev;
+      current_i--;
+    }
   }
   return node;
 }

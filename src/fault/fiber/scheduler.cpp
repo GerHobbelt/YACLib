@@ -146,15 +146,8 @@ void Scheduler::Sleep(uint64_t ns) {
 namespace yaclib::detail::fiber {
 
 BiNode* PollRandomElementFromList(BiList& list) {
-  auto limit =
-    fault::_random_list_pick != 0 ? std::min<std::size_t>(fault::_random_list_pick, list.GetSize()) : list.GetSize();
-  auto rand_pos = detail::GetRandNumber(limit);
-  if (fault::_random_list_pick != 0) {
-    if (detail::GetRandNumber(2) != 0u) {
-      rand_pos = list.GetSize() - rand_pos - 1;
-    }
-  }
-  auto* next = list.GetNth(rand_pos);
+  auto rand_pos = detail::GetRandNumber(fault::_random_list_pick == 0 ? list.GetSize() : fault::_random_list_pick * 2);
+  auto* next = list.GetNth(list.GetSize() - fault::_random_list_pick + rand_pos);
   list.Erase(next);
   return next;
 }
