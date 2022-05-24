@@ -6,8 +6,8 @@ namespace yaclib::detail::fiber {
 
 void BiList::PushBack(BiNode* node) noexcept {
   if (node->prev != nullptr && node->prev != node) {
-    this->Erase(node);
     _size++;
+    this->Erase(node);
   }
   YACLIB_DEBUG(node->prev != nullptr && node->prev != node, "pushed and not popped");
   _size++;
@@ -18,7 +18,7 @@ void BiList::PushBack(BiNode* node) noexcept {
 }
 
 bool BiList::Empty() const noexcept {
-  return &_head == _head.prev;
+  return _size == 0;
 }
 
 bool BiList::Erase(BiNode* node) noexcept {
@@ -44,7 +44,6 @@ BiList::BiList(BiList&& other) noexcept {
 }
 
 BiNode* BiList::PopBack() {
-  _size--;
   auto* elem = _head.prev;
   Erase(_head.prev);
   return elem;
