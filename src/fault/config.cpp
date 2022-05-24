@@ -45,7 +45,7 @@ void SetFaultFiberStackCacheSize(std::uint32_t c) {
 }
 
 void SetFaultHardwareConcurrency(std::uint32_t c) {
-  //TODO(myannyax): set for thread based fault too
+  // TODO(myannyax): set for thread based fault too
 #if YACLIB_FAULT == 2
   yaclib::detail::fiber::Thread::SetHardwareConcurrency(c);
 #endif
