@@ -8,15 +8,15 @@ namespace yaclib::fault {
 
 Scheduler* current_scheduler = nullptr;
 
-static thread_local detail::fiber::Fiber* current;
+static thread_local detail::fiber::FiberBase* current;
 
 static uint32_t _tick_length = 10;
 static uint32_t _random_list_pick = 0;
 
-detail::fiber::Fiber* Scheduler::GetNext() {
+detail::fiber::FiberBase* Scheduler::GetNext() {
   YACLIB_DEBUG(_queue.Empty(), "Queue can't be empty");
   auto* next = PollRandomElementFromList(_queue);
-  return static_cast<detail::fiber::Fiber*>(static_cast<detail::fiber::BiNodeScheduler*>(next));
+  return static_cast<detail::fiber::FiberBase*>(static_cast<detail::fiber::BiNodeScheduler*>(next));
 }
 
 bool Scheduler::IsRunning() const {
@@ -41,7 +41,7 @@ void Scheduler::Set(Scheduler* scheduler) {
   current_scheduler = scheduler;
 }
 
-void Scheduler::Schedule(detail::fiber::Fiber* fiber) {
+void Scheduler::Schedule(detail::fiber::FiberBase* fiber) {
   InjectFault();
   _queue.PushBack(static_cast<detail::fiber::BiNodeScheduler*>(fiber));
   if (!IsRunning()) {
@@ -51,11 +51,11 @@ void Scheduler::Schedule(detail::fiber::Fiber* fiber) {
   }
 }
 
-detail::fiber::Fiber* Scheduler::Current() {
+detail::fiber::FiberBase* Scheduler::Current() {
   return current;
 }
 
-detail::fiber::Fiber::Id Scheduler::GetId() {
+detail::fiber::FiberBase::Id Scheduler::GetId() {
   YACLIB_DEBUG(current == nullptr, "Current can't be null");
   return current->GetId();
 }

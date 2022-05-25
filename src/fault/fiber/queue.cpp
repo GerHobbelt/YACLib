@@ -13,7 +13,7 @@ void FiberQueue::NotifyAll() {
   auto all = std::move(_queue);
   _queue = BiList();
   while (!all.Empty()) {
-    fault::Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(all.PopBack())));
+    fault::Scheduler::GetScheduler()->Schedule(static_cast<FiberBase*>(static_cast<BiNodeWaitQueue*>(all.PopBack())));
   }
 }
 
@@ -22,7 +22,7 @@ void FiberQueue::NotifyOne() {
     return;
   }
   auto* fiber = PollRandomElementFromList(_queue);
-  fault::Scheduler::GetScheduler()->Schedule(static_cast<Fiber*>(static_cast<BiNodeWaitQueue*>(fiber)));
+  fault::Scheduler::GetScheduler()->Schedule(static_cast<FiberBase*>(static_cast<BiNodeWaitQueue*>(fiber)));
 }
 
 FiberQueue::~FiberQueue() {

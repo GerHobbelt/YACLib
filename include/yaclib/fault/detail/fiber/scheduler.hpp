@@ -21,7 +21,7 @@ class Scheduler {
  public:
   Scheduler();
 
-  void Schedule(detail::fiber::Fiber* fiber);
+  void Schedule(detail::fiber::FiberBase* fiber);
 
   [[nodiscard]] bool IsRunning() const;
 
@@ -29,9 +29,9 @@ class Scheduler {
 
   [[nodiscard]] uint64_t GetTimeNs() const;
 
-  static detail::fiber::Fiber* Current();
+  static detail::fiber::FiberBase* Current();
 
-  static detail::fiber::Fiber::Id GetId();
+  static detail::fiber::FiberBase::Id GetId();
 
   static void RescheduleCurrent();
 
@@ -52,7 +52,7 @@ class Scheduler {
 
   void TickTime();
 
-  detail::fiber::Fiber* GetNext();
+  detail::fiber::FiberBase* GetNext();
 
   void RunLoop();
 

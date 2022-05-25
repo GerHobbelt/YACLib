@@ -25,17 +25,13 @@ enum FiberState {
   Completed,
 };
 
-class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
+class FiberBase : public BiNodeScheduler, public BiNodeWaitQueue {
  public:
   using Id = uint64_t;
 
-  Fiber(Fiber&& other) noexcept = default;
+  FiberBase();
 
-  Fiber& operator=(Fiber&& other) noexcept = default;
-
-  explicit Fiber(Routine routine);
-
-  void SetJoiningFiber(Fiber* joining_fiber);
+  void SetJoiningFiber(FiberBase* joining_fiber);
 
   [[nodiscard]] Id GetId() const;
 
@@ -55,22 +51,54 @@ class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
 
   static IStackAllocator& GetAllocator();
 
- private:
-  [[noreturn]] static void Trampoline(void* arg);
+  virtual ~FiberBase() = default;
 
+ protected:
   void Complete();
 
   Stack _stack;
   ExecutionContext _context{};
   ExecutionContext _caller_context{};
-  Routine _routine;
-  Fiber* _joining_fiber{nullptr};
+  FiberBase* _joining_fiber{nullptr};
   std::exception_ptr _exception;
   Id _id;
   FiberState _state{Suspended};
   bool _threadlike_instance_alive{true};
   std::unordered_map<uint64_t, void*> _tls;
   static DefaultAllocator allocator;
+};
+
+template <typename... Args>
+using FuncState = std::tuple<typename std::decay_t<Args>...>;
+
+template <typename... Args>
+class Fiber final : public FiberBase {
+ public:
+  // TODO(myannyax): add tests
+  Fiber(Args&&... args) : _func_state(std::forward<Args>(args)...) {
+    _context.Setup(_stack.GetAllocation(), Trampoline, this);
+  }
+
+  [[noreturn]] static void Trampoline(void* arg) noexcept {
+    auto* coroutine = reinterpret_cast<Fiber*>(arg);
+    try {
+      Helper(coroutine->_func_state, std::index_sequence_for<FuncState<Args...>>{});
+    } catch (...) {
+      coroutine->_exception = std::current_exception();
+    }
+
+    coroutine->Complete();
+  }
+
+  ~Fiber() final = default;
+
+ private:
+  template <typename Tuple, std::size_t... I>
+  static auto Helper(Tuple& a, std::index_sequence<I...>) {
+    std::__invoke(std::move(std::get<I>(a))...);
+  }
+
+  FuncState<Args...> _func_state;
 };
 
 }  // namespace yaclib::detail::fiber
