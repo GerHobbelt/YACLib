@@ -2,8 +2,8 @@
 
 namespace yaclib::detail::fiber {
 
-class Fiber;
+class FiberBase;
 
-void ScheduleFiber(Fiber* fiber);
+void ScheduleFiber(FiberBase* fiber);
 
 }  // namespace yaclib::detail::fiber

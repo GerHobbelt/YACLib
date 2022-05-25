@@ -37,8 +37,8 @@ void Thread::detach() {
   AfterJoinOrDetach();
 }
 
-Fiber::Id Thread::get_id() const noexcept {
-  return _impl == nullptr ? Fiber::Id{0} : _impl->GetId();
+FiberBase::Id Thread::get_id() const noexcept {
+  return _impl == nullptr ? FiberBase::Id{0} : _impl->GetId();
 }
 
 Thread::native_handle_type Thread::native_handle() noexcept {

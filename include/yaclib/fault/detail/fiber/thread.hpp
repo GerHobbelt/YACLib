@@ -15,15 +15,12 @@ class Thread {
   Thread(const Thread&) = delete;
   Thread& operator=(const Thread&) = delete;
 
-  using id = Fiber::Id;
+  using id = FiberBase::Id;
   using native_handle_type = std::thread::native_handle_type;
 
   template <typename Fp, typename... Args>
   inline explicit Thread(Fp&& f, Args&&... args) {
-    yaclib::IFuncPtr func = yaclib::MakeFunc([&, f = std::forward<Fp>(f)]() mutable {
-      f(std::forward(args)...);
-    });
-    _impl = new Fiber(func);
+    _impl = new Fiber<Fp, Args...>(std::move(FuncState<Fp, Args...>(std::forward<Fp>(f), std::forward<Args>(args)...)));
     fault::Scheduler::GetScheduler()->Schedule(_impl);
   }
 
@@ -48,7 +45,7 @@ class Thread {
  private:
   void AfterJoinOrDetach();
 
-  Fiber* _impl{nullptr};
+  FiberBase* _impl{nullptr};
   bool _joined_or_detached{false};
 };
 

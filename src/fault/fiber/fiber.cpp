@@ -6,19 +6,18 @@
 
 namespace yaclib::detail::fiber {
 
-static Fiber::Id next_id{1L};
+static FiberBase::Id next_id{1L};
 
-DefaultAllocator Fiber::allocator{};
+DefaultAllocator FiberBase::allocator{};
 
-Fiber::Fiber(Routine routine) : _id(next_id++), _stack(allocator), _routine(std::move(routine)) {
-  _context.Setup(_stack.GetAllocation(), Trampoline, this);
+FiberBase::FiberBase() : _id(next_id++), _stack(allocator) {
 }
 
-Fiber::Id Fiber::GetId() const {
+FiberBase::Id FiberBase::GetId() const {
   return _id;
 }
 
-void Fiber::Resume() {
+void FiberBase::Resume() {
   if (_state == Completed) {
     return;
   }
@@ -32,12 +31,12 @@ void Fiber::Resume() {
   }
 }
 
-void Fiber::Yield() {
+void FiberBase::Yield() {
   _state = Suspended;
   _context.SwitchTo(_caller_context);
 }
 
-void Fiber::Complete() {
+void FiberBase::Complete() {
   _state = Completed;
   if (_joining_fiber != nullptr && _threadlike_instance_alive) {
     GetInjector()->SetPauseInject(true);
@@ -47,43 +46,31 @@ void Fiber::Complete() {
   _context.SwitchTo(_caller_context);
 }
 
-void Fiber::Trampoline(void* arg) {
-  auto* coroutine = reinterpret_cast<Fiber*>(arg);
-
-  try {
-    coroutine->_routine->Call();
-  } catch (...) {
-    coroutine->_exception = std::current_exception();
-  }
-
-  coroutine->Complete();
-}
-
-FiberState Fiber::GetState() {
+FiberState FiberBase::GetState() {
   return _state;
 }
 
-void Fiber::SetJoiningFiber(Fiber* joining_fiber) {
+void FiberBase::SetJoiningFiber(FiberBase* joining_fiber) {
   _joining_fiber = joining_fiber;
 }
 
-void Fiber::SetThreadlikeInstanceDead() {
+void FiberBase::SetThreadlikeInstanceDead() {
   _threadlike_instance_alive = false;
 }
 
-bool Fiber::IsThreadlikeInstanceAlive() const {
+bool FiberBase::IsThreadlikeInstanceAlive() const {
   return _threadlike_instance_alive;
 }
 
-void* Fiber::GetTls(uint64_t name, void* _default) {
+void* FiberBase::GetTls(uint64_t name, void* _default) {
   return _tls[name] == nullptr ? _default : _tls[name];
 }
 
-void Fiber::SetTls(uint64_t name, void* value) {
+void FiberBase::SetTls(uint64_t name, void* value) {
   _tls[name] = value;
 }
 
-IStackAllocator& Fiber::GetAllocator() {
+IStackAllocator& FiberBase::GetAllocator() {
   return allocator;
 }
 
