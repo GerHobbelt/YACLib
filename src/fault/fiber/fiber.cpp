@@ -39,9 +39,9 @@ void Fiber::Yield() {
 
 void Fiber::Complete() {
   _state = Completed;
-  if (_complete_callback != nullptr && _threadlike_instance_alive) {
+  if (_joining_fiber != nullptr && _threadlike_instance_alive) {
     GetInjector()->SetPauseInject(true);
-    _complete_callback->Call();
+    ScheduleFiber(_joining_fiber);
     GetInjector()->SetPauseInject(false);
   }
   _context.SwitchTo(_caller_context);
@@ -63,15 +63,8 @@ FiberState Fiber::GetState() {
   return _state;
 }
 
-void Fiber::SetCompleteCallback(Routine routine) {
-  if (routine == nullptr) {
-    if (_complete_callback == nullptr) {
-      return;
-    }
-    _complete_callback->DecRef();
-    _complete_callback.Release();
-  }
-  _complete_callback = std::move(routine);
+void Fiber::SetJoiningFiber(Fiber* joining_fiber) {
+  _joining_fiber = joining_fiber;
 }
 
 void Fiber::SetThreadlikeInstanceDead() {

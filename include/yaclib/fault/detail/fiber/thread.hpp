@@ -24,9 +24,6 @@ class Thread {
       f(std::forward(args)...);
     });
     _impl = new Fiber(func);
-    _impl->SetCompleteCallback(yaclib::MakeFunc([&]() mutable {
-      _join_queue.NotifyAll();
-    }));
     fault::Scheduler::GetScheduler()->Schedule(_impl);
   }
 
@@ -52,7 +49,6 @@ class Thread {
   void AfterJoinOrDetach();
 
   Fiber* _impl{nullptr};
-  FiberQueue _join_queue;
   bool _joined_or_detached{false};
 };
 

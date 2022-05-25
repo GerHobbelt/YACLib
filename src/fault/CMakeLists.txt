@@ -55,6 +55,11 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     # condition
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/condition_variable.hpp
 
+    # atomic
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/atomic.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/atomic_flag.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/atomic_wait.hpp
+
     # fiber
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack_allocator.hpp
@@ -66,6 +71,7 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/thread.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/bidirectional_intrusive_list.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/thread_local_proxy.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/wakeup_helper.hpp
     )
   list(APPEND YACLIB_SOURCES
     # chrono
@@ -90,6 +96,7 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/queue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/scheduler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/bidirectional_intrusive_list.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/wakeup_helper.cpp
     )
 endif ()
 

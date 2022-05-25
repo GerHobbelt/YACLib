@@ -11,9 +11,6 @@ Thread::Thread() noexcept = default;
 
 void Thread::swap(Thread& t) noexcept {
   auto* other_impl = t._impl;
-  auto other_queue = std::move(t._join_queue);
-  t._join_queue = std::move(_join_queue);
-  _join_queue = std::move(other_queue);
   t._impl = _impl;
   _impl = other_impl;
   _joined_or_detached = std::exchange(t._joined_or_detached, _joined_or_detached);
@@ -29,7 +26,8 @@ void Thread::join() {
   _joined_or_detached = true;
   // TODO(myannyax): allow joining from other threads
   while (_impl->GetState() != Completed) {
-    _join_queue.Wait(NoTimeoutTag{});
+    _impl->SetJoiningFiber(fault::Scheduler::GetScheduler()->Current());
+    fault::Scheduler::GetScheduler()->Suspend();
   }
   AfterJoinOrDetach();
 }
@@ -60,20 +58,12 @@ Thread::~Thread() {
 Thread& Thread::operator=(Thread&& t) noexcept {
   _impl = t._impl;
   _joined_or_detached = t._joined_or_detached;
-  _join_queue = std::move(t._join_queue);
-  _impl->SetCompleteCallback(yaclib::MakeFunc([&]() mutable {
-    _join_queue.NotifyAll();
-  }));
   t._impl = nullptr;
   t._joined_or_detached = true;
   return *this;
 }
 
-Thread::Thread(Thread&& t) noexcept
-    : _impl(t._impl), _join_queue(std::move(t._join_queue)), _joined_or_detached(t._joined_or_detached) {
-  _impl->SetCompleteCallback(yaclib::MakeFunc([&]() mutable {
-    _join_queue.NotifyAll();
-  }));
+Thread::Thread(Thread&& t) noexcept : _impl(t._impl), _joined_or_detached(t._joined_or_detached) {
   t._impl = nullptr;
   t._joined_or_detached = true;
 }

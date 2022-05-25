@@ -5,6 +5,7 @@
 #include <yaclib/fault/detail/fiber/execution_context.hpp>
 #include <yaclib/fault/detail/fiber/stack.hpp>
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
+#include <yaclib/fault/detail/fiber/wakeup_helper.hpp>
 #include <yaclib/util/func.hpp>
 #include <yaclib/util/intrusive_ptr.hpp>
 
@@ -34,7 +35,7 @@ class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
 
   explicit Fiber(Routine routine);
 
-  void SetCompleteCallback(Routine routine);
+  void SetJoiningFiber(Fiber* joining_fiber);
 
   [[nodiscard]] Id GetId() const;
 
@@ -63,7 +64,7 @@ class Fiber : public BiNodeScheduler, public BiNodeWaitQueue {
   ExecutionContext _context{};
   ExecutionContext _caller_context{};
   Routine _routine;
-  Routine _complete_callback{nullptr};
+  Fiber* _joining_fiber{nullptr};
   std::exception_ptr _exception;
   Id _id;
   FiberState _state{Suspended};
