@@ -3,7 +3,7 @@
 #include <yaclib/fault/detail/fiber/queue.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
 #include <yaclib/log.hpp>
-#include <yaclib/util/func.hpp>
+#include <yaclib/util/detail/shared_func.hpp>
 
 #include <functional>
 #include <thread>

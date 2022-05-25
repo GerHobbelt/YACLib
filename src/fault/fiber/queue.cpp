@@ -35,7 +35,7 @@ FiberQueue& FiberQueue::operator=(FiberQueue&& other) noexcept {
   return *this;
 }
 
-bool FiberQueue::Empty() {
+bool FiberQueue::Empty() const {
   return _queue.Empty();
 }
 }  // namespace yaclib::detail::fiber

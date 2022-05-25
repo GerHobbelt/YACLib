@@ -5,13 +5,14 @@
 #include <yaclib/fault/detail/fiber/execution_context.hpp>
 #include <yaclib/fault/detail/fiber/stack.hpp>
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
-#include <yaclib/util/detail/shared_func.hpp>
+#include <yaclib/util/func.hpp>
+#include <yaclib/util/intrusive_ptr.hpp>
 
 #include <unordered_map>
 
 namespace yaclib::detail::fiber {
 
-using Routine = yaclib::IFuncPtr;
+using Routine = IntrusivePtr<IFunc>;
 
 class BiNodeScheduler : public BiNode {};
 

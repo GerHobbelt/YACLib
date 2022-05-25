@@ -37,7 +37,7 @@ class FiberQueue {
 
   void NotifyOne();
 
-  bool Empty();
+  bool Empty() const;
 
   ~FiberQueue();
 
