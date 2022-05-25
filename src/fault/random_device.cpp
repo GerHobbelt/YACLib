@@ -1,6 +1,6 @@
-#include "yaclib/fault/detail/random_device.hpp"
+#include <yaclib/fault/detail/random_device.hpp>
 
-#include "fault/util.hpp"
+#include <fault/util.hpp>
 
 namespace yaclib::detail::thread {
 

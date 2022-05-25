@@ -1,4 +1,4 @@
-#include "fault/util.hpp"
+#include <fault/util.hpp>
 
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
 

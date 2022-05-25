@@ -1,4 +1,4 @@
-#include "util.hpp"
+#include <fault/util.hpp>
 
 #include <yaclib/fault/config.hpp>
 #include <yaclib/fault/injector.hpp>

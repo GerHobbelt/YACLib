@@ -1,5 +1,5 @@
 
-#include "yaclib/fault/detail/fiber/recursive_mutex.hpp"
+#include <yaclib/fault/detail/fiber/recursive_mutex.hpp>
 
 namespace yaclib::detail::fiber {
 void fiber::RecursiveMutex::lock() {
