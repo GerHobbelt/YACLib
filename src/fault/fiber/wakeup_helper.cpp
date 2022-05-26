@@ -1,4 +1,4 @@
-#include <yaclib/fault/detail/fiber/fiber.hpp>
+#include <yaclib/fault/detail/fiber/fiber_base.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
 #include <yaclib/fault/detail/fiber/wakeup_helper.hpp>
 

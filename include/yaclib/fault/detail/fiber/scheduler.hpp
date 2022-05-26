@@ -1,7 +1,7 @@
 #pragma once
 
 #include <yaclib/fault/detail/fiber/default_allocator.hpp>
-#include <yaclib/fault/detail/fiber/fiber.hpp>
+#include <yaclib/fault/detail/fiber/fiber_base.hpp>
 #include <yaclib/fault/detail/fiber/stack.hpp>
 #include <yaclib/fault/detail/fiber/stack_allocator.hpp>
 #include <yaclib/fault/inject.hpp>

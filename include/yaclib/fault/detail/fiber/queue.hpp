@@ -1,5 +1,5 @@
 #pragma once
-#include <yaclib/fault/detail/fiber/fiber.hpp>
+#include <yaclib/fault/detail/fiber/fiber_base.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
 #include <yaclib/fault/detail/fiber/steady_clock.hpp>
 

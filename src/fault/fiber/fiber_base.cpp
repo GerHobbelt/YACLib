@@ -1,4 +1,4 @@
-#include <yaclib/fault/detail/fiber/fiber.hpp>
+#include <yaclib/fault/detail/fiber/fiber_base.hpp>
 #include <yaclib/fault/inject.hpp>
 #include <yaclib/fault/injector.hpp>
 

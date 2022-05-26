@@ -64,7 +64,7 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/stack_allocator.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/default_allocator.hpp
-    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/fiber.hpp
+    ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/fiber_base.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/queue.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/scheduler.hpp
     ${YACLIB_INCLUDE_DIR}/fault/detail/fiber/execution_context.hpp
@@ -92,7 +92,7 @@ if (YACLIB_FAULT STREQUAL "FIBER")
     # fibers
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/context/execution_context.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/context/default_allocator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/fiber.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/fiber/fiber_base.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/queue.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/scheduler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/fiber/bidirectional_intrusive_list.cpp

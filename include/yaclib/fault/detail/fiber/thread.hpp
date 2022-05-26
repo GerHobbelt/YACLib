@@ -2,6 +2,7 @@
 
 #include <yaclib/fault/detail/fiber/queue.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
+#include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/log.hpp>
 #include <yaclib/util/detail/shared_func.hpp>
 
@@ -19,8 +20,7 @@ class Thread {
   using native_handle_type = std::thread::native_handle_type;
 
   template <typename... Args>
-  inline explicit Thread(Args&&... args) {
-    _impl = new Fiber<Args...>(std::forward<Args>(args)...);
+  inline explicit Thread(Args&&... args) : _impl(new Fiber<Args...>(std::forward<Args>(args)...)) {
     fault::Scheduler::GetScheduler()->Schedule(_impl);
   }
 
