@@ -1,8 +1,8 @@
 #pragma once
 
+#include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/fault/detail/fiber/queue.hpp>
 #include <yaclib/fault/detail/fiber/scheduler.hpp>
-#include <yaclib/fault/detail/fiber/fiber.hpp>
 #include <yaclib/log.hpp>
 #include <yaclib/util/detail/shared_func.hpp>
 

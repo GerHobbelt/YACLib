@@ -4,8 +4,8 @@
 
 #include <gtest/gtest.h>
 
-YACLIB_THREAD_LOCAL(int) tls_int_ptr;
-YACLIB_THREAD_LOCAL(std::vector<int>) tls_vector_ptr;
+YACLIB_THREAD_LOCAL_PTR(int) tls_int_ptr;
+YACLIB_THREAD_LOCAL_PTR(std::vector<int>) tls_vector_ptr;
 
 TEST(FiberThreadLocal, Simple) {
   ASSERT_TRUE(!tls_int_ptr);

@@ -20,7 +20,7 @@
 namespace yaclib {
 namespace {
 
-static YACLIB_THREAD_LOCAL(IExecutor) tlCurrentThreadPool{&MakeInline()};
+static YACLIB_THREAD_LOCAL_PTR(IExecutor) tlCurrentThreadPool{&MakeInline()};
 
 class ThreadPool : public IThreadPool {
  public:

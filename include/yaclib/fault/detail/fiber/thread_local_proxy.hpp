@@ -20,10 +20,42 @@ class ThreadLocalPtrProxy {
   ThreadLocalPtrProxy(Type* value) : _i(nextFreeIndex++) {
     defaults[_i] = value;
   }
+  ThreadLocalPtrProxy(ThreadLocalPtrProxy&& other) : _i(other._i) {
+  }
+  ThreadLocalPtrProxy(const ThreadLocalPtrProxy& other) : _i(nextFreeIndex++) {
+    defaults[_i] = other.operator->();
+  }
 
   ThreadLocalPtrProxy& operator=(Type* value) {
     auto* fiber = fault::Scheduler::Current();
     fiber->SetTls(_i, value);
+    return *this;
+  }
+  ThreadLocalPtrProxy& operator=(ThreadLocalPtrProxy&& other) noexcept {
+    _i = other._i;
+    return *this;
+  }
+  ThreadLocalPtrProxy& operator=(const ThreadLocalPtrProxy& other) {
+    defaults[_i] = other.operator->();
+    return *this;
+  }
+
+  template <typename U>
+  ThreadLocalPtrProxy(ThreadLocalPtrProxy<U>&& other) noexcept : _i(other._i) {
+  }
+  template <typename U>
+  ThreadLocalPtrProxy(const ThreadLocalPtrProxy<U>& other) noexcept : _i(nextFreeIndex++) {
+    defaults[_i] = other.operator->();
+  }
+
+  template <typename U>
+  ThreadLocalPtrProxy& operator=(ThreadLocalPtrProxy<U>&& other) noexcept {
+    _i = other._i;
+    return *this;
+  }
+  template <typename U>
+  ThreadLocalPtrProxy& operator=(const ThreadLocalPtrProxy<U>& other) noexcept {
+    defaults[_i] = other.operator->();
     return *this;
   }
 

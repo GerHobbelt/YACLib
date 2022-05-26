@@ -21,7 +21,7 @@ void Injector::MaybeInject() {
 #if YACLIB_FAULT == 2
     yaclib_std::this_thread::yield();
 #else
-    yaclib_std::this_thread::sleep_for(std::chrono::nanoseconds(1 + GetRandNumber(sleep_time - 1)));
+    yaclib_std::this_thread::sleep_for(std::chrono::nanoseconds(1 + GetRandNumber(sleep_time)));
 #endif
   }
 }
@@ -38,7 +38,7 @@ bool Injector::NeedInject() {
 }
 
 void Injector::Reset() {
-  _count = 1 + GetRandNumber(yield_frequency - 1);
+  _count = GetRandNumber(yield_frequency);
 }
 
 void Injector::SetFrequency(uint32_t freq) {
